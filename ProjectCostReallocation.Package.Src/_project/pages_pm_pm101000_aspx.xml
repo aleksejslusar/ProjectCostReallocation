@@ -1,0 +1,42 @@
+﻿<Page path="~/pages/pm/pm101000.aspx" ControlId="5" pageSource="tVddc6pIEH1OqvIfKLbyeDVmd19SemsNmsSqaCjxJnlLjTDqrDDDzgyJ3of97dsNYhARKHKXF2Cmp8/p0z1f3cu/DJssqfFI+DKCj55p/WYaY6I0ldhxx3xo+7f92aLad0IGz4x+tIK40TT6kRbDd8r1C5M0CnumlhE1jWfiM49oOqX/RFTpnrkgvoJ2S3g7v/a4c9W5urpqERVuWq4yL84NeEZ8RSXTCgwA8C21Mo0Z0zjsB9f44cXUTePy+8X5xXkXQklYzrYhNZ6Z1BHxbaJXlfzRQRco3FiCawjDGA16pgvfHSQbN9k+cemD8D0qsTNcDRzTkBEnEJZD5Tu4+Z6Q74abG/t1QDRxRCRdGjvz1N5aJdZAULE5RjOLxXphHjKFOC8hTohgQgJU6LX1NP+bulq17HHLoToKx4RxbRq2ZAGRWwwEKUBHyiBmYRHfnxN3bYkgINxTmb4MSydnZuCbaWsF5UBVyi2h4pB3+G5nQdonULrtnAgocDuj8CnBr08Lfleqd5rT2NMCfo70/iSTJsTRW9T/5zfGPbq5MTpYYgd5wDFjGsypTCU2LBJqJnj8rxlfpjWLzzAgzIe2e0lC8HGQD5wjDvtJ4/ggg+jyBYDFh2kMOYFK8FK5x4w/ULZcAflrpHQg+YwGoQ+TqjCfj2QrIj2NfJqP3tFEakv4UcBTmEcyp77axTtOhJfCR5Lxf7sJxL0UuAAkCPHPXrB7CkET39gLdwLBWlF3fSs2SVGs1iPVdzXD2ssBxoafsmGy7hj1oeFzSDGEQ32YUkLGENSbScInEaYZeB3BZB3nLGd0o3EVm037E9M4RMLnuOZq8bkl2l3tYUaDUkrHxgmr2/7MevgKKXQz9JjekZoIbkuBSxGu36WU8qYJodcE6OzsrDDovlJsyQOY+mMSFsSc8X9kigApNqxVsCP5vvhA8tniOAyaxr2dXfTVrCZCswVzCRZzXXr5MV/kmc9kyZPReSBFOBAffBeRFemnxQL35dIcgplYLAZoVm+a4gJnC6VLldnb1Pc5hYQQRVGpRMgqgIIB9dCSvQ/zBtPcXRetBVmBCqwrl0xEyjZ0jhCqVtH42AC7jN6WLKS18a+P8MdULveHknK/ef12J5oRv38sE+7ArCFC366FgGZNEab1EKaNEZynWgho1hDBrodgVyKUVNCfRxCNXf3xvxTjsF6pDJuXymhSCwHNGiJY/VoIaNYUoV65W5XlXpLf3ytLpeqI+auPpH3XFRFcP6qOpLktdLgJKYcdJhmdbNelm2nxgOSoQb0RXj965rfO6ePhMjnsqPUhAyeaY2NZ6vKW2SsN3Kyd4eyH/bYDUG/NzotVKkm4iDcRq2Dc1zXb+a0vXX7Ar1aw287d6Xa35/RKW3B3/g8=">
+    <PXFormView ID="form" ParentId="phF_form" TypeFullName="PX.Web.UI.PXFormView">
+        <Children Key="Template">
+            <AddItem>
+                <PXLayoutRule TypeFullName="PX.Web.UI.PXLayoutRule">
+                    <Prop Key="Virtual:ApplyStylesheetSkin" />
+                    <Prop Key="ID" Value="CstPXLayoutRule1" />
+                    <Prop Key="StartGroup" Value="True" />
+                    <Prop Key="GroupCaption" Value="Cost Reassignment Settings" />
+                </PXLayoutRule>
+            </AddItem>
+            <AddItem>
+                <PXSelector TypeFullName="PX.Web.UI.PXSelector">
+                    <Prop Key="Virtual:ApplyStylesheetSkin" />
+                    <Prop Key="ID" Value="CstPXSelector2" />
+                    <Prop Key="DataField" Value="UsrReassignmentNumberingID" />
+                </PXSelector>
+            </AddItem>
+            <AddItem>
+                <PXCheckBox TypeFullName="PX.Web.UI.PXCheckBox">
+                    <Prop Key="Virtual:ApplyStylesheetSkin" />
+                    <Prop Key="ID" Value="CstPXCheckBox3" />
+                    <Prop Key="DataField" Value="UsrAutoReleaseReassignment" />
+                </PXCheckBox>
+            </AddItem>
+            <AddItem>
+                <PXSegmentMask TypeFullName="PX.Web.UI.PXSegmentMask">
+                    <Prop Key="Virtual:ApplyStylesheetSkin" />
+                    <Prop Key="ID" Value="CstPXSegmentMask4" />
+                    <Prop Key="DataField" Value="UsrReassignmentAccountID" />
+                </PXSegmentMask>
+            </AddItem>
+            <AddItem>
+                <PXSegmentMask TypeFullName="PX.Web.UI.PXSegmentMask">
+                    <Prop Key="Virtual:ApplyStylesheetSkin" />
+                    <Prop Key="ID" Value="CstPXSegmentMask5" />
+                    <Prop Key="DataField" Value="UsrReassignmentSubID" />
+                </PXSegmentMask>
+            </AddItem>
+        </Children>
+    </PXFormView>
+</Page>

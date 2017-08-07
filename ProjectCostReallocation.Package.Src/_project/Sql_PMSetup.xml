@@ -1,0 +1,61 @@
+﻿<Sql TableName="PMSetup" CustomScript="#CDATA" TableSchemaXml="#CDATA">
+    <CDATA name="CustomScript"><![CDATA[IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = N'dbo' AND TABLE_NAME = N'PMSetup' AND COLUMN_NAME = N'UsrReassignmentNumberingID')
+BEGIN
+	ALTER TABLE dbo.PMSetup
+	ADD UsrReassignmentNumberingID nvarchar(10) NULL	
+	PRINT 'Column PMSetup.UsrReassignmentNumberingID created'	
+END
+
+IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = N'dbo' AND TABLE_NAME = N'PMSetup' AND COLUMN_NAME = N'UsrReassignmentAccountID')
+BEGIN
+	ALTER TABLE dbo.PMSetup
+	ADD UsrReassignmentAccountID int NULL	
+	PRINT 'Column PMSetup.UsrReassignmentAccountID created'	
+END
+
+IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = N'dbo' AND TABLE_NAME = N'PMSetup' AND COLUMN_NAME = N'UsrReassignmentSubID')
+BEGIN
+	ALTER TABLE dbo.PMSetup
+	ADD UsrReassignmentSubID int NULL	
+	PRINT 'Column PMSetup.UsrReassignmentSubID created'	
+END]]></CDATA>
+    <CDATA name="TableSchemaXml"><![CDATA[<table name="PMSetup">
+  <col name="CompanyID" type="Int" default="Zero" />
+  <col name="VisibleInGL" type="Bit" default="Zero" />
+  <col name="VisibleInAP" type="Bit" default="Zero" />
+  <col name="VisibleInAR" type="Bit" default="Zero" />
+  <col name="VisibleInSO" type="Bit" default="Zero" />
+  <col name="VisibleInPO" type="Bit" default="Zero" />
+  <col name="VisibleInEP" type="Bit" default="Zero" />
+  <col name="VisibleInIN" type="Bit" default="Zero" />
+  <col name="VisibleInCA" type="Bit" default="Zero" />
+  <col name="VisibleInCR" type="Bit" default="Zero" />
+  <col name="NonProjectCode" type="NVarChar(10)" nullable="true" />
+  <col name="TranNumbering" type="NVarChar(10)" nullable="true" />
+  <col name="AssignmentMapID" type="Int" nullable="true" />
+  <col name="AssignmentNotificationID" type="Int" nullable="true" />
+  <col name="AutoPost" type="Bit" default="Zero" />
+  <col name="AutoReleaseAllocation" type="Bit" default="Zero" />
+  <col name="CommitmentTracking" type="Bit" default="Zero" />
+  <col name="BatchNumberingID" type="NVarChar(10)" nullable="true" />
+  <col name="ExpenseAccountSource" type="Char(1)" />
+  <col name="ExpenseSubMask" type="VarChar(30)" nullable="true" />
+  <col name="ExpenseAccrualAccountSource" type="Char(1)" />
+  <col name="ExpenseAccrualSubMask" type="VarChar(30)" nullable="true" />
+  <col name="CutoffDate" type="Char(1)" />
+  <col name="tstamp" type="Timestamp" />
+  <col name="CreatedByID" type="UniqueIdentifier" />
+  <col name="CreatedByScreenID" type="Char(8)" />
+  <col name="CreatedDateTime" type="DateTime" />
+  <col name="LastModifiedByID" type="UniqueIdentifier" />
+  <col name="LastModifiedByScreenID" type="Char(8)" />
+  <col name="LastModifiedDateTime" type="DateTime" />
+  <col name="UsrReassignmentNumberingID" type="NVarChar(10)" nullable="true" />
+  <col name="UsrAutoReleaseReassignment" type="Bit" default="Zero" />
+  <col name="UsrReassignmentAccountID" type="Int" nullable="true" />
+  <col name="UsrReassignmentSubID" type="Int" nullable="true" />
+  <index name="PMSetup_PK" clustered="true" primary="true" unique="true">
+    <col name="CompanyID" />
+  </index>
+</table>]]></CDATA>
+</Sql>

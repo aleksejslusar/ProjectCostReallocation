@@ -1,0 +1,63 @@
+﻿<Sql TableName="UsrPMCostReassignmentSourceTran" CustomScript="#CDATA" TableSchemaXml="#CDATA">
+    <CDATA name="CustomScript"><![CDATA[-- table UsrPMCostReassignmentSourceTran
+IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = N'dbo' AND TABLE_NAME = N'UsrPMCostReassignmentSourceTran')
+BEGIN
+    PRINT 'Create table UsrPMCostReassignmentSourceTran'
+	CREATE TABLE [dbo].UsrPMCostReassignmentSourceTran(
+	 [CompanyID] [int] NOT NULL
+	,[PMReassignmentID] [nvarchar] (10) NOT NULL		
+	,[SourceTranID] [bigint] NOT NULL
+	,[TranID] [bigint] NOT NULL	
+	,[NoteID] [uniqueidentifier] NULL	
+	,[CreatedByID] [uniqueidentifier] NOT NULL
+	,[Tstamp] [timestamp] NULL
+	,[CreatedByScreenID] [char](8) NOT NULL
+	,[CreatedDateTime] [datetime] NOT NULL
+	,[LastModifiedByID] [uniqueidentifier] NOT NULL
+	,[LastModifiedDateTime] [datetime] NOT NULL
+	,[LastModifiedByScreenID] [char](8) NOT NULL
+CONSTRAINT [PK_UsrPMCostReassignmentSourceTran] PRIMARY KEY CLUSTERED 
+	(
+	[CompanyID] ASC,
+	[PMReassignmentID] ASC,
+	[SourceTranID] ASC,
+	[TranID] ASC
+)
+WITH (
+	PAD_INDEX  = OFF, 
+	STATISTICS_NORECOMPUTE  = OFF, 
+	IGNORE_DUP_KEY = OFF, 
+	ALLOW_ROW_LOCKS  = ON, 
+	ALLOW_PAGE_LOCKS  = ON
+))
+
+ALTER TABLE [dbo].[UsrPMCostReassignmentSourceTran]  WITH NOCHECK ADD  CONSTRAINT [FK_PMTran_UsrPMCostReassignmentSourceTran] FOREIGN KEY([CompanyID], [SourceTranID])
+REFERENCES [dbo].[PMTran] ([CompanyID], [TranID])
+ALTER TABLE [dbo].[UsrPMCostReassignmentSourceTran] CHECK CONSTRAINT [FK_PMTran_UsrPMCostReassignmentSourceTran]
+
+ALTER TABLE [dbo].[UsrPMCostReassignmentSourceTran]  WITH NOCHECK ADD  CONSTRAINT [FK_PMTran_UsrPMCostReassignmentTran] FOREIGN KEY([CompanyID], [TranID])
+REFERENCES [dbo].[PMTran] ([CompanyID], [TranID])
+ALTER TABLE [dbo].[UsrPMCostReassignmentSourceTran] CHECK CONSTRAINT [FK_PMTran_UsrPMCostReassignmentTran]
+
+END]]></CDATA>
+    <CDATA name="TableSchemaXml"><![CDATA[<table name="UsrPMCostReassignmentSourceTran">
+  <col name="CompanyID" type="Int" default="Zero" />
+  <col name="PMReassignmentID" type="NVarChar(10)" />
+  <col name="SourceTranID" type="BigInt" />
+  <col name="TranID" type="BigInt" />
+  <col name="NoteID" type="UniqueIdentifier" nullable="true" />
+  <col name="CreatedByID" type="UniqueIdentifier" />
+  <col name="tstamp" type="Timestamp" />
+  <col name="CreatedByScreenID" type="Char(8)" />
+  <col name="CreatedDateTime" type="DateTime" />
+  <col name="LastModifiedByID" type="UniqueIdentifier" />
+  <col name="LastModifiedDateTime" type="DateTime" />
+  <col name="LastModifiedByScreenID" type="Char(8)" />
+  <index name="PK_UsrPMCostReassignmentSourceTran" clustered="true" primary="true" unique="true">
+    <col name="CompanyID" />
+    <col name="PMReassignmentID" />
+    <col name="SourceTranID" />
+    <col name="TranID" />
+  </index>
+</table>]]></CDATA>
+</Sql>

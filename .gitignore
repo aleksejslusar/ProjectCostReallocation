@@ -1,0 +1,6 @@
+*.suo
+Debug
+Release
+packages
+
+/.vs

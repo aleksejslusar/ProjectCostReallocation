@@ -1,0 +1,13 @@
+﻿<SiteMapNode>
+    <data-set>
+        <relations format-version="3" relations-version="20160101" main-table="SiteMap" />
+        <layout>
+            <table name="SiteMap" />
+        </layout>
+        <data>
+            <SiteMap>
+                <row Position="3" Title="Run Cost Reassignment" Url="~/Pages/PM/PM504532.aspx" Expanded="0" IsFolder="0" ScreenID="PM504532" NodeID="b7204d2d-9163-4c92-b8a4-ac725e96f165" ParentID="8ab9dbb0-8254-4499-bc63-6a703e93f1f5" />
+            </SiteMap>
+        </data>
+    </data-set>
+</SiteMapNode>

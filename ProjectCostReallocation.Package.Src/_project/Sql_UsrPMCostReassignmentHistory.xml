@@ -1,0 +1,38 @@
+﻿<Sql TableName="UsrPMCostReassignmentHistory" CustomScript="#CDATA" TableSchemaXml="#CDATA">
+    <CDATA name="CustomScript"><![CDATA[-- table UsrPMCostReassignmentHistory
+IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = N'dbo' AND TABLE_NAME = N'UsrPMCostReassignmentHistory')
+BEGIN
+    PRINT 'Create table UsrPMCostReassignmentHistory'
+	CREATE TABLE [dbo].UsrPMCostReassignmentHistory(
+	 [CompanyID] [int] NOT NULL	
+	,[TranID] [bigint] NOT NULL	
+	,[PMReassignmentID] [char] (10) NOT NULL	
+CONSTRAINT [PK_UsrPMCostReassignmentHistory] PRIMARY KEY CLUSTERED 
+	(
+	[CompanyID] ASC,
+	[TranID] ASC
+)
+WITH (
+	PAD_INDEX  = OFF, 
+	STATISTICS_NORECOMPUTE  = OFF, 
+	IGNORE_DUP_KEY = OFF, 
+	ALLOW_ROW_LOCKS  = ON, 
+	ALLOW_PAGE_LOCKS  = ON
+))
+
+ALTER TABLE [dbo].[UsrPMCostReassignmentHistory]  WITH NOCHECK ADD  CONSTRAINT [FK_UsrPMCostReassignment_UsrPMCostReassignmentHistory] FOREIGN KEY([CompanyID], [PMReassignmentID])
+REFERENCES [dbo].[UsrPMCostReassignment] ([CompanyID], [PMReassignmentID])
+
+ALTER TABLE [dbo].[UsrPMCostReassignmentHistory] CHECK CONSTRAINT [FK_UsrPMCostReassignment_UsrPMCostReassignmentHistory]
+
+END]]></CDATA>
+    <CDATA name="TableSchemaXml"><![CDATA[<table name="UsrPMCostReassignmentHistory">
+  <col name="CompanyID" type="Int" default="Zero" />
+  <col name="TranID" type="BigInt" />
+  <col name="PMReassignmentID" type="Char(10)" />
+  <index name="PK_UsrPMCostReassignmentHistory" clustered="true" primary="true" unique="true">
+    <col name="CompanyID" />
+    <col name="TranID" />
+  </index>
+</table>]]></CDATA>
+</Sql>

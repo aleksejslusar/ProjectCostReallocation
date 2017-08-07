@@ -1,0 +1,56 @@
+﻿<Sql TableName="UsrPMCostReassignment" CustomScript="#CDATA" TableSchemaXml="#CDATA">
+    <CDATA name="CustomScript"><![CDATA[-- table UsrPMCostReassignment
+IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = N'dbo' AND TABLE_NAME = N'UsrPMCostReassignment')
+BEGIN
+    PRINT 'Create table UsrPMCostReassignment'
+	CREATE TABLE [dbo].UsrPMCostReassignment(
+	 [CompanyID] [int] NOT NULL
+	,[PMReassignmentID] [char] (10) NOT NULL		
+	,[BranchID] [int] NOT NULL	
+	,[Description] [nvarchar](60)  NULL
+	,[Active] [bit] NOT NULL
+	,[RevID] [int] NOT NULL DEFAULT 1
+	,[NoteID] [uniqueidentifier] NULL	
+	,[CreatedByID] [uniqueidentifier] NOT NULL
+	,[Tstamp] [timestamp] NULL
+	,[CreatedByScreenID] [char](8) NOT NULL
+	,[CreatedDateTime] [datetime] NOT NULL
+	,[LastModifiedByID] [uniqueidentifier] NOT NULL
+	,[LastModifiedDateTime] [datetime] NOT NULL
+	,[LastModifiedByScreenID] [char](8) NOT NULL
+CONSTRAINT [PK_UsrPMCostReassignment] PRIMARY KEY CLUSTERED 
+	(
+	[CompanyID] ASC,
+	[PMReassignmentID] ASC	
+)
+WITH (
+	PAD_INDEX  = OFF, 
+	STATISTICS_NORECOMPUTE  = OFF, 
+	IGNORE_DUP_KEY = OFF, 
+	ALLOW_ROW_LOCKS  = ON, 
+	ALLOW_PAGE_LOCKS  = ON
+))
+END]]></CDATA>
+    <CDATA name="TableSchemaXml"><![CDATA[<table name="UsrPMCostReassignment">
+  <col name="CompanyID" type="Int" default="Zero" />
+  <col name="PMReassignmentID" type="Char(10)" />
+  <col name="BranchID" type="Int" />
+  <col name="Description" type="NVarChar(60)" nullable="true" />
+  <col name="Active" type="Bit" />
+  <col name="RevID" type="Int" />
+  <col name="NoteID" type="UniqueIdentifier" nullable="true" />
+  <col name="CreatedByID" type="UniqueIdentifier" />
+  <col name="tstamp" type="Timestamp" />
+  <col name="CreatedByScreenID" type="Char(8)" />
+  <col name="CreatedDateTime" type="DateTime" />
+  <col name="LastModifiedByID" type="UniqueIdentifier" />
+  <col name="LastModifiedDateTime" type="DateTime" />
+  <col name="LastModifiedByScreenID" type="Char(8)" />
+  <col name="UsrReassignmentSquareFootage" type="Decimal(19,4)" nullable="true" />
+  <col name="UsrReassignmentNumberOfUnits" type="Int" nullable="true" />
+  <index name="PK_UsrPMCostReassignment" clustered="true" primary="true" unique="true">
+    <col name="CompanyID" />
+    <col name="PMReassignmentID" />
+  </index>
+</table>]]></CDATA>
+</Sql>
