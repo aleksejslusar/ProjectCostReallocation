@@ -59,7 +59,7 @@ namespace ProjectCostReallocation
                 var isCanEditTransactions = !row.GetExtension<PMRegisterExt>().UsrIsReassignment.GetValueOrDefault();
                 Base.Transactions.Cache.AllowDelete = isCanEditTransactions;
                 Base.Transactions.Cache.AllowUpdate = isCanEditTransactions;
-                Base.Transactions.Cache.AllowInsert = isCanEditTransactions;
+                Base.Transactions.Cache.AllowInsert = isCanEditTransactions;                
             }
         }
 
@@ -85,7 +85,7 @@ namespace ProjectCostReallocation
         private void PerformReverseReassignment()
         {
             var current = Base.Document.Current;
-            var newTrans = new Dictionary<PMTran, PMTran>();
+            var newTrans = new Dictionary<PMTran, PMTran>();            
             if (current != null)
             {
                 RegisterEntry target;
@@ -140,32 +140,47 @@ namespace ProjectCostReallocation
                             tran.OrigTranID = pmTran.TranID;
                             target.Transactions.Cache.SetValueExt<PMTranExt.usrReassigned>(tran, true);
 
+                            //Release
+
                             //Delete UsrPMCostReassignmentRunHistory
                             DeleteRelatedReassignmentRunHistory(pmTran);
 
                             //Save new tran to list
                             newTrans.Add(pmTran, tran);
-                            }
-
-                        target.Document.Current = doc;
-                        target.Document.Current.Released = true;
-                        target.Save.Press();
-
-                        foreach (var tran in newTrans)
-                        {
-                            //Write history
-                            WriteUsrPMCostReassignmentHistory(tran.Key, tran.Value);
                         }
 
+                        target.Save.Press();
                         ts.Complete();
                     }
                 }
+                
+                //Write history
+                foreach (var tran in newTrans)
+                {
+                    WriteUsrPMCostReassignmentHistory(tran.Key, tran.Value);
+                }
 
-                //Release
-                target.ReleaseDocument(target.Document.Current);
                 target.Save.Press();
 
                 target.Document.Current = PXSelect<PMRegister, Where<PMRegister.module, Equal<Current<PMRegister.module>>, And<PMRegister.origRefNbr, Equal<Current<PMRegister.refNbr>>>>>.Select(Base);
+                
+                //Release
+                PXLongOperation.StartOperation(Base, () =>
+                {
+                    if (target.Document.Current.Released != true)
+                    {
+                        Base.ReleaseDocument(target.Document.Current);
+                        target.Save.Press();
+                    }
+
+                });
+
+                PXAutomation.CompleteAction(Base);
+                PXLongOperation.WaitCompletion(Base.UID);
+                PXLongOperation.ClearStatus(Base.UID);
+
+                //Wait before redirect
+                System.Threading.Thread.Sleep(3000);
                 throw new PXRedirectRequiredException(target, "Open Reversal");
             }
         }
@@ -233,8 +248,8 @@ namespace ProjectCostReallocation
         private void DeleteRelatedReassignmentRunHistory(PMTran tran)
         {
             var usrPMCostReassignmentRunHistoryView = new PXSelect<UsrPMCostReassignmentRunHistory, Where<UsrPMCostReassignmentRunHistory.pMReassignmentID, Equal<Required<UsrPMCostReassignmentRunHistory.pMReassignmentID>>,
-                                                                                                     And<UsrPMCostReassignmentRunHistory.revID, Equal<Required<UsrPMCostReassignmentRunHistory.revID>>,
-                                                                                                     And2<Where<UsrPMCostReassignmentRunHistory.sourceTranID, Equal<Required<UsrPMCostReassignmentRunHistory.sourceTranID>>>,
+                                                                                                      And<UsrPMCostReassignmentRunHistory.revID, Equal<Required<UsrPMCostReassignmentRunHistory.revID>>,
+                                                                                                      And2<Where<UsrPMCostReassignmentRunHistory.sourceTranID, Equal<Required<UsrPMCostReassignmentRunHistory.sourceTranID>>>,
                                                                                                              Or<UsrPMCostReassignmentRunHistory.destinationTranID, Equal<Required<UsrPMCostReassignmentRunHistory.destinationTranID>>>>>>>(Base);
             //Get reassignmemt
             var reassignmemt = GetReassignmentByTranID(tran);
@@ -251,7 +266,7 @@ namespace ProjectCostReallocation
         }
 
         private void WriteUsrPMCostReassignmentHistory(PMTran currentTran, PMTran newTran)
-        {
+        {            
             //Get reassignmemt
             var reassignmemt = GetReassignmentByTranID(currentTran);
             if (reassignmemt != null)

@@ -124,7 +124,7 @@ namespace ProjectCostReallocation.BL.ReassignmentChain
                 var processedTransAmount = Math.Abs(Processor.ProcessedTransactions.Select(sourcePMTran.TranID, currentReassignment.PMReassignmentID, currentReassignment.RevID)
                                                                                    .Select(i => i.GetItem<PMTran>())
                                                                                    .Where(i => i.Amount > 0)
-                                                                                   .Sum(i => i.Amount).GetValueOrDefault());
+                                                                                   .Sum(i => Math.Round(i.Amount.GetValueOrDefault(), 2, MidpointRounding.AwayFromZero)));
 
                 var sourceTransAmount = Math.Round(sourcePMTran.Amount.GetValueOrDefault(), 2, MidpointRounding.AwayFromZero);
                 var existsTransAmount = Math.Round(processedTransAmount, 2, MidpointRounding.AwayFromZero);
