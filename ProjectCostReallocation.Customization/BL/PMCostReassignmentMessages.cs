@@ -8,7 +8,7 @@ namespace ProjectCostReallocation.BL
         public const string REASSAIMENT_AMOUNT_ERROR_SF = "Reassignment amount cannot be calculated. Reassignment selection value for the processed reassignment equals 0. Check Square Footage.";
         public const string REASSAIMENT_AMOUNT_ERROR = "Calculated value of reassignment amount is incorrect.";
         public const string REASSAIMENT_NOTHING_TO_REASSIGN_TRAN_NOT_FOUND = "Nothing to allocate: All existing project transactions for the Source Task have been already reassigned";
-        public const string REASSAIMENT_NOTHING_TO_REASSIGN_TRAN_REQASSIGNED_EARLIER = "Nothing to reassign: Transactions for source reassignment task was reassigned earlier";    
+        public const string REASSAIMENT_NOTHING_TO_REASSIGN_TRAN_REQASSIGNED_EARLIER = "Nothing to allocate: All existing project transactions for the Source Task have been already reassigned";    
         public const string REASSIGNMENT_REVERSE_ERROR = "PM Error: Reversal for the given reassignment already exists. Reassignment can be reversed only once. RefNbr of the reversal document is {0}.";
 
         public const string REASSIGNMENT_NUMBERING_SEQUENCE_VALUE_NOT_CONFIGURED = "Reassignment Numbering Sequence value should be configured. Use screen PM101000 for configure Reassignment Numbering Sequence value.";

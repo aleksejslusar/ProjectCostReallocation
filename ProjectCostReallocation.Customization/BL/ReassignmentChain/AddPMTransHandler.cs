@@ -121,12 +121,14 @@ namespace ProjectCostReallocation.BL.ReassignmentChain
             var currentReassignment = Processor.ReassignmentGraph.PMCostReassignment.Current;
             if (currentReassignment != null)
             {
-                var processedTransactionsAmount = Math.Abs(Processor.ProcessedTransactions.Select(sourcePMTran.TranID, currentReassignment.PMReassignmentID, currentReassignment.RevID)
-                                                                                          .Select(i => i.GetItem<PMTran>())
-                                                                                          .Where(i => i.Amount > 0)
-                                                                                          .Sum(i => i.Amount).GetValueOrDefault());
+                var processedTransAmount = Math.Abs(Processor.ProcessedTransactions.Select(sourcePMTran.TranID, currentReassignment.PMReassignmentID, currentReassignment.RevID)
+                                                                                   .Select(i => i.GetItem<PMTran>())
+                                                                                   .Where(i => i.Amount > 0)
+                                                                                   .Sum(i => i.Amount).GetValueOrDefault());
 
-                return sourcePMTran.Amount > 0 ? sourcePMTran.Amount.GetValueOrDefault() - processedTransactionsAmount : sourcePMTran.Amount.GetValueOrDefault() + processedTransactionsAmount;
+                var sourceTransAmount = Math.Round(sourcePMTran.Amount.GetValueOrDefault(), 2, MidpointRounding.AwayFromZero);
+                var existsTransAmount = Math.Round(processedTransAmount, 2, MidpointRounding.AwayFromZero);
+                return sourcePMTran.Amount > 0 ? sourceTransAmount - existsTransAmount : sourceTransAmount + existsTransAmount;
             }
 
             return 0;
@@ -185,8 +187,8 @@ namespace ProjectCostReallocation.BL.ReassignmentChain
                     break;
             }
 
-            var percentage = destAmount / sourceAmount;
-            var amount = balansedSourceAmount * percentage;
+            var percentage = Math.Round(destAmount / sourceAmount, 6, MidpointRounding.AwayFromZero);
+            var amount = Math.Round(balansedSourceAmount * percentage, 3, MidpointRounding.AwayFromZero);
 
             var isValid = percentage > 0 && percentage <= 1 && amount != 0;
             return new ReassigmentValue(isValid, amount, sourceAmount, destAmount, percentage, reassigmentSelection);
