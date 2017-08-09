@@ -12,7 +12,7 @@ namespace ProjectCostReallocation.DAC
 		}
 		protected string _PMReassignmentID;
 		[PXDBString(10, IsFixed = true, IsKey = true)]
-		[PXDefault()]
+		[PXDefault]
 		[PXUIField(DisplayName = "PMReassignmentID")]
 		public virtual string PMReassignmentID
 		{
@@ -32,7 +32,7 @@ namespace ProjectCostReallocation.DAC
 		}
 		protected int? _RevID;
 		[PXDBInt(IsKey = true)]
-		[PXDefault()]
+		[PXDefault]
 		[PXUIField(DisplayName = "RevID")]
 		public virtual int? RevID
 		{
@@ -52,7 +52,7 @@ namespace ProjectCostReallocation.DAC
 		}
 		protected long? _SourceTranID;
 		[PXDBLong(IsKey = true)]
-		[PXDefault()]
+		[PXDefault]
 		[PXUIField(DisplayName = "SourceTranID")]
 		public virtual long? SourceTranID
 		{
@@ -72,7 +72,7 @@ namespace ProjectCostReallocation.DAC
 		}
 		protected int? _SourceTaskID;
 		[PXDBInt(IsKey = true)]
-		[PXDefault()]
+		[PXDefault]
 		[PXUIField(DisplayName = "SourceTaskID")]
 		public virtual int? SourceTaskID
 		{
@@ -92,7 +92,7 @@ namespace ProjectCostReallocation.DAC
 		}
 		protected long? _DestinationTranID;
 		[PXDBLong(IsKey = true)]
-		[PXDefault()]
+		[PXDefault]
 		[PXUIField(DisplayName = "DestinationTranID")]
 		public virtual long? DestinationTranID
 		{
@@ -112,7 +112,7 @@ namespace ProjectCostReallocation.DAC
 		}
 		protected int? _DestinationTaskID;
 		[PXDBInt(IsKey = true)]
-		[PXDefault()]
+		[PXDefault]
 		[PXUIField(DisplayName = "DestinationTaskID")]
 		public virtual int? DestinationTaskID
 		{

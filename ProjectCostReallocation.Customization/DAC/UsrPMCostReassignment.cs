@@ -76,7 +76,7 @@ namespace ProjectCostReallocation.DAC
 		{
 		}
 		protected bool? _Active;
-		[PXDBBool()]
+		[PXDBBool]
 		[PXDefault(false)]
 		[PXUIField(DisplayName = "Active")]
 		public virtual bool? Active
@@ -151,7 +151,7 @@ namespace ProjectCostReallocation.DAC
         {
         }
         protected Guid? _CreatedByID;
-        [PXDBCreatedByID()]
+        [PXDBCreatedByID]
         public virtual Guid? CreatedByID
         {
             get
@@ -187,7 +187,7 @@ namespace ProjectCostReallocation.DAC
         {
         }
         protected string _CreatedByScreenID;
-        [PXDBCreatedByScreenID()]
+        [PXDBCreatedByScreenID]
         public virtual string CreatedByScreenID
         {
             get
@@ -205,7 +205,7 @@ namespace ProjectCostReallocation.DAC
         {
         }
         protected DateTime? _CreatedDateTime;
-        [PXDBCreatedDateTime()]
+        [PXDBCreatedDateTime]
         public virtual DateTime? CreatedDateTime
         {
             get
@@ -223,7 +223,7 @@ namespace ProjectCostReallocation.DAC
         {
         }
         protected Guid? _LastModifiedByID;
-        [PXDBLastModifiedByID()]
+        [PXDBLastModifiedByID]
         public virtual Guid? LastModifiedByID
         {
             get
@@ -241,7 +241,7 @@ namespace ProjectCostReallocation.DAC
         {
         }
         protected DateTime? _LastModifiedDateTime;
-        [PXDBLastModifiedDateTime()]        
+        [PXDBLastModifiedDateTime]        
         public virtual DateTime? LastModifiedDateTime
         {
             get
@@ -259,7 +259,7 @@ namespace ProjectCostReallocation.DAC
         {
         }
         protected string _LastModifiedByScreenID;
-        [PXDBLastModifiedByScreenID()]
+        [PXDBLastModifiedByScreenID]
         public virtual string LastModifiedByScreenID
         {
             get

@@ -17,18 +17,19 @@ namespace ProjectCostReallocation
 
         public PXSelectOrderBy<UsrPMCostReassignment, OrderBy<Asc<UsrPMCostReassignment.pMReassignmentID>>> PMCostReassignment;
 
-        public PXSelectJoin<UsrPMCostReassignmentSource,
-                InnerJoin<PMProject, On<PMProject.contractID, Equal<UsrPMCostReassignmentSource.projectID>>,
-                LeftJoin<PMTask,On<PMTask.taskID, Equal<UsrPMCostReassignmentSource.taskID>, And<PMTask.projectID, Equal<UsrPMCostReassignmentSource.projectID>>>>>,
-            Where<UsrPMCostReassignmentSource.pMReassignmentID, Equal<Current<UsrPMCostReassignment.pMReassignmentID>>>,
-            OrderBy<Asc<UsrPMCostReassignmentSource.lineID>>> PMCostReassignmentSource;
+        public PXSelectJoin<UsrPMCostReassignmentSource, 
+                  InnerJoin<PMProject, On<PMProject.contractID, Equal<UsrPMCostReassignmentSource.projectID>>,
+                   LeftJoin<PMTask, On<PMTask.taskID, Equal<UsrPMCostReassignmentSource.taskID>, 
+                                   And<PMTask.projectID, Equal<UsrPMCostReassignmentSource.projectID>>>>>,
+                      Where<UsrPMCostReassignmentSource.pMReassignmentID, Equal<Current<UsrPMCostReassignment.pMReassignmentID>>>,
+                    OrderBy<Asc<UsrPMCostReassignmentSource.lineID>>> PMCostReassignmentSource;
 
-        public PXSelectJoin<UsrPMCostReassignmentDestination,
-                InnerJoin<PMProject, On<PMProject.contractID, Equal<UsrPMCostReassignmentDestination.projectID>>,
-                LeftJoin<PMTask,On<PMTask.taskID, Equal<UsrPMCostReassignmentDestination.taskID>, 
-                     And<PMTask.projectID, Equal<UsrPMCostReassignmentDestination.projectID>>>>>,
-            Where<UsrPMCostReassignmentDestination.pMReassignmentID, Equal<Current<UsrPMCostReassignment.pMReassignmentID>>>,
-            OrderBy<Asc<UsrPMCostReassignmentDestination.lineID>>> PMCostReassignmentDestination;
+        public PXSelectJoin<UsrPMCostReassignmentDestination, 
+                  InnerJoin<PMProject, On<PMProject.contractID, Equal<UsrPMCostReassignmentDestination.projectID>>,
+                   LeftJoin<PMTask,On<PMTask.taskID, Equal<UsrPMCostReassignmentDestination.taskID>, 
+                                  And<PMTask.projectID, Equal<UsrPMCostReassignmentDestination.projectID>>>>>,
+                     Where<UsrPMCostReassignmentDestination.pMReassignmentID, Equal<Current<UsrPMCostReassignment.pMReassignmentID>>>,
+                   OrderBy<Asc<UsrPMCostReassignmentDestination.lineID>>> PMCostReassignmentDestination;
 
         [PXCopyPasteHiddenView]
         public PXSetup<PMSetup> PMSetupSelect;
@@ -46,10 +47,11 @@ namespace ProjectCostReallocation
                 Where<UsrPMCostReassignmentHistory.pMReassignmentID, Equal<Current<UsrPMCostReassignment.pMReassignmentID>>>> PMCostReassignmentHistory;
 
         [PXCopyPasteHiddenView]
-        public PXSelect<UsrPMCostReassignmentRunHistory, Where<UsrPMCostReassignmentRunHistory.pMReassignmentID, Equal<Current<UsrPMCostReassignment.pMReassignmentID>>, 
-                                                           And<UsrPMCostReassignmentRunHistory.revID, Equal<Current<UsrPMCostReassignment.revID>>,
-                                                           And<UsrPMCostReassignmentRunHistory.destinationTaskID, Equal<Required<UsrPMCostReassignmentRunHistory.destinationTaskID>>,
-                                                           And<UsrPMCostReassignmentRunHistory.destinationTranID, Equal<Required<UsrPMCostReassignmentRunHistory.destinationTranID>>>>>>> RunHistory;
+        public PXSelect<UsrPMCostReassignmentRunHistory, 
+                  Where<UsrPMCostReassignmentRunHistory.pMReassignmentID, Equal<Current<UsrPMCostReassignment.pMReassignmentID>>, 
+                    And<UsrPMCostReassignmentRunHistory.revID, Equal<Current<UsrPMCostReassignment.revID>>,
+                    And<UsrPMCostReassignmentRunHistory.destinationTaskID, Equal<Required<UsrPMCostReassignmentRunHistory.destinationTaskID>>,
+                    And<UsrPMCostReassignmentRunHistory.destinationTranID, Equal<Required<UsrPMCostReassignmentRunHistory.destinationTranID>>>>>>> RunHistory;
 
         [PXCopyPasteHiddenView]
         public PXSelect<PMTran, Where<PMTran.projectID, Equal<Required<PMTran.projectID>>, And<PMTran.taskID, Equal<PMTran.taskID>>>> Tran;

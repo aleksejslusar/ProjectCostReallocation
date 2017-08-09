@@ -3,7 +3,7 @@ using PX.Data;
 
 namespace ProjectCostReallocation.DAC
 {
-    [Serializable()]
+    [Serializable]
 	public class UsrPMCostReassignmentSourceTran : IBqlTable
 	{
         #region PMReassignmentID
@@ -12,7 +12,7 @@ namespace ProjectCostReallocation.DAC
 		}
 		protected string _pMReassignmentID;
 		[PXDBString(10, IsUnicode = true, IsKey = true)]
-		[PXDefault()]
+		[PXDefault]
 		[PXUIField(DisplayName = "ReassignmentID", Visible = false)]
 		public virtual string PMReassignmentID
         {
@@ -32,7 +32,7 @@ namespace ProjectCostReallocation.DAC
 		}
 		protected long? _SourceTranID;
 		[PXDBLong(IsKey = true)]
-		[PXDefault()]
+		[PXDefault]
 		[PXUIField(DisplayName = "SourceTranID")]
 		public virtual long? SourceTranID
 		{
@@ -52,7 +52,7 @@ namespace ProjectCostReallocation.DAC
 		}
 		protected long? _TranID;
 		[PXDBLong(IsKey = true)]
-		[PXDefault()]
+		[PXDefault]
 		[PXUIField(DisplayName = "TranID")]
 		public virtual long? TranID
 		{

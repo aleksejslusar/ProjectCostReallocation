@@ -36,7 +36,6 @@ namespace ProjectCostReallocation.DAC
 		protected int? _LineID;
 		[PXDBIdentity(IsKey = true)]		
 		[PXUIField(DisplayName = "Line Nbr.", Visible = false)]
-        [PXLineNbr(typeof(UsrPMCostReassignment))]        
         public virtual int? LineID
 		{
 			get
@@ -55,7 +54,7 @@ namespace ProjectCostReallocation.DAC
 		}
 		protected int? _ProjectID;				
         [PXDBInt(IsKey = true)]
-        [PXDefault(typeof(projectID))]
+        [PXDefault]
         [PXUIField(DisplayName = "Project ID", Required = true)]
         [PXSelector(typeof(Search<PMProject.contractID, Where<PMProject.baseType, Equal<PMProject.ProjectBaseType>, And<PMProject.isTemplate, NotEqual<True>>>>), 
                     typeof(PMProject.contractCD), 
@@ -80,7 +79,7 @@ namespace ProjectCostReallocation.DAC
 		protected int? _TaskID;
 		[PXDBInt]
 		[PXUIField(DisplayName = "Task ID", Visibility = PXUIVisibility.SelectorVisible)]
-        [PXDefault(typeof(taskID))]
+        [PXDefault]
         [PXSelector(typeof(Search<PMTask.taskID, Where<PMTask.projectID, Equal<Current<projectID>>>>),
                     typeof(PMTask.taskCD),
                     typeof(PMTask.description),

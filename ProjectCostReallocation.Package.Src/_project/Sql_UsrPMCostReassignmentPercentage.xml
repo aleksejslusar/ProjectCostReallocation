@@ -1,4 +1,4 @@
-﻿<Sql TableName="UsrPMCostReassignmentPercentage" CustomScript="#CDATA" TableSchemaXml="#CDATA">
+﻿<Sql TableName="UsrPMCostReassignmentPercentage" CustomScript="#CDATA">
     <CDATA name="CustomScript"><![CDATA[-- table UsrPMCostReassignmentPercentage
 IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = N'dbo' AND TABLE_NAME = N'UsrPMCostReassignmentPercentage')
 BEGIN
@@ -38,26 +38,4 @@ REFERENCES [dbo].[PMTran] ([CompanyID], [TranID])
 ALTER TABLE [dbo].[UsrPMCostReassignmentPercentage] CHECK CONSTRAINT [FK_PMTran_UsrPMCostReassignmentPercentage]
 
 END]]></CDATA>
-    <CDATA name="TableSchemaXml"><![CDATA[<table name="UsrPMCostReassignmentPercentage">
-  <col name="CompanyID" type="Int" default="Zero" />
-  <col name="PMReassignmentID" type="NVarChar(10)" />
-  <col name="TranID" type="BigInt" />
-  <col name="ReassignmentSelection" type="Char(1)" />
-  <col name="SourceValue" type="Decimal(19,4)" />
-  <col name="DestinationValue" type="Decimal(19,4)" />
-  <col name="Percentage" type="Decimal(19,4)" />
-  <col name="NoteID" type="UniqueIdentifier" nullable="true" />
-  <col name="CreatedByID" type="UniqueIdentifier" />
-  <col name="tstamp" type="Timestamp" />
-  <col name="CreatedByScreenID" type="Char(8)" />
-  <col name="CreatedDateTime" type="DateTime" />
-  <col name="LastModifiedByID" type="UniqueIdentifier" />
-  <col name="LastModifiedDateTime" type="DateTime" />
-  <col name="LastModifiedByScreenID" type="Char(8)" />
-  <index name="PK_UsrPMCostReassignmentPercentage" clustered="true" primary="true" unique="true">
-    <col name="CompanyID" />
-    <col name="PMReassignmentID" />
-    <col name="TranID" />
-  </index>
-</table>]]></CDATA>
 </Sql>

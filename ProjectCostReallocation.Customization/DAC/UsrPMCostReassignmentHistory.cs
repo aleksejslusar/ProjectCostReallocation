@@ -1,9 +1,10 @@
-﻿using PX.Data;
+﻿using System;
+using PX.Data;
 using PX.Objects.PM;
 
 namespace ProjectCostReallocation.DAC
 {
-    [System.SerializableAttribute()]
+    [Serializable]
 	public class UsrPMCostReassignmentHistory : IBqlTable
 	{
         #region TranID
@@ -13,7 +14,7 @@ namespace ProjectCostReallocation.DAC
         }
         protected long? _TranID;
         [PXDBLong(IsKey = true)]
-        [PXDefault(typeof(PMTran.tranID))]
+        [PXDefault]
         public virtual long? TranID
         {
             get
@@ -33,7 +34,7 @@ namespace ProjectCostReallocation.DAC
 		protected string _PMReassignmentID;
 		[PXDBString(10, IsFixed = true, IsKey = true)]
 		[PXDefault(typeof(UsrPMCostReassignment.pMReassignmentID))]
-        [PXParent(typeof(Select<UsrPMCostReassignment, Where<UsrPMCostReassignment.pMReassignmentID, Equal<Current<UsrPMCostReassignmentSource.pMReassignmentID>>>>))]
+        [PXParent(typeof(Select<UsrPMCostReassignment, Where<UsrPMCostReassignment.pMReassignmentID, Equal<Current<pMReassignmentID>>>>))]
         public virtual string PMReassignmentID
 		{
 			get

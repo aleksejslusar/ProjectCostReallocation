@@ -144,7 +144,7 @@ namespace ProjectCostReallocation.DAC
         }
         protected int? _RevID;
         [PXDBInt(IsKey = true)]
-        [PXDefault()]
+        [PXDefault]
         [PXUIField(DisplayName = "RevID")]
         public virtual int? RevID
         {
@@ -190,7 +190,7 @@ namespace ProjectCostReallocation.DAC
         }
         protected string _SourceProjectDescription;
         [PXDBLocalizableString(60, IsUnicode = true)]
-        [PXDefault()]
+        [PXDefault]
         [PXUIField(DisplayName = "Source Project Description", Visibility = PXUIVisibility.SelectorVisible)]
         [PXFieldDescription]
         public  string SourceProjectDescription
@@ -236,7 +236,7 @@ namespace ProjectCostReallocation.DAC
         }
         protected string _SourceTaskDescription;        
         [PXDBString(250, IsUnicode = true)]
-        [PXDefault()]
+        [PXDefault]
         [PXUIField(DisplayName = "Source Task Description", Visibility = PXUIVisibility.SelectorVisible)]
         [PXFieldDescription]
         public virtual string SourceTaskDescription
@@ -260,7 +260,7 @@ namespace ProjectCostReallocation.DAC
         /// <summary>
         ///  Gets or sets the actual date, when the task is started
         /// </summary>
-        [PXDBDate()]
+        [PXDBDate]
         [PXUIField(DisplayName = "Source Task Start Date")]
         public virtual DateTime? SourceTaskStartDate
         {
@@ -283,7 +283,7 @@ namespace ProjectCostReallocation.DAC
         /// <summary>
         /// Gets or sets the actual date, when the task is finished.
         /// </summary>
-        [PXDBDate()]
+        [PXDBDate]
         [PXVerifyEndDate(typeof(sourceTaskStartDate), AutoChangeWarning = true)]
         [PXUIField(DisplayName = "Source Task End Date")]
         public virtual DateTime? SourceTaskEndDate
@@ -330,7 +330,7 @@ namespace ProjectCostReallocation.DAC
         }
         protected string _DestinationProjectDescription;
         [PXDBLocalizableString(60, IsUnicode = true)]
-        [PXDefault()]
+        [PXDefault]
         [PXUIField(DisplayName = "Destination Project Description", Visibility = PXUIVisibility.SelectorVisible)]
         [PXFieldDescription]
         public string DestinationProjectDescription
@@ -376,7 +376,7 @@ namespace ProjectCostReallocation.DAC
         }
         protected string _DestinationTaskDescription;
         [PXDBString(250, IsUnicode = true)]
-        [PXDefault()]
+        [PXDefault]
         [PXUIField(DisplayName = "Destination Task Description", Visibility = PXUIVisibility.SelectorVisible)]
         [PXFieldDescription]
         public virtual string DestinationTaskDescription
@@ -400,7 +400,7 @@ namespace ProjectCostReallocation.DAC
         /// <summary>
         ///  Gets or sets the actual date, when the task is started
         /// </summary>
-        [PXDBDate()]
+        [PXDBDate]
         [PXUIField(DisplayName = "Destination Task Start Date")]
         public virtual DateTime? DestinationTaskStartDate
         {
@@ -423,7 +423,7 @@ namespace ProjectCostReallocation.DAC
         /// <summary>
         /// Gets or sets the actual date, when the task is finished.
         /// </summary>
-        [PXDBDate()]
+        [PXDBDate]
         [PXVerifyEndDate(typeof(destinationTaskStartDate), AutoChangeWarning = true)]
         [PXUIField(DisplayName = "Destination Task End Date")]
         public virtual DateTime? DestinationTaskEndDate

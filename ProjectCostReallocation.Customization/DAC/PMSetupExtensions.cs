@@ -9,7 +9,7 @@ namespace ProjectCostReallocation.DAC
       #region UsrReassignmentNumberingID
 
       [PXDBString(10)]
-      [PXDefault("REASSIGNMT")]
+      [PXDefault]
       [PXUIField(DisplayName = "Reassignment Numbering Sequence")]
       [PXSelector(typeof (Numbering.numberingID), DescriptionField = typeof (Numbering.descr))]
       public virtual string UsrReassignmentNumberingID { get; set; }

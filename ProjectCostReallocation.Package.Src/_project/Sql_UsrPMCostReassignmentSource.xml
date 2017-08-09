@@ -1,4 +1,4 @@
-﻿<Sql TableName="UsrPMCostReassignmentSource" CustomScript="#CDATA" TableSchemaXml="#CDATA">
+﻿<Sql TableName="UsrPMCostReassignmentSource" CustomScript="#CDATA">
     <CDATA name="CustomScript"><![CDATA[-- table UsrPMCostReassignmentSource
 IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = N'dbo' AND TABLE_NAME = N'UsrPMCostReassignmentSource')
 BEGIN
@@ -39,26 +39,4 @@ REFERENCES [dbo].[UsrPMCostReassignment] ([CompanyID], [PMReassignmentID])
 ALTER TABLE [dbo].[UsrPMCostReassignmentSource] CHECK CONSTRAINT [FK_UsrPMCostReassignment_UsrPMCostReassignmentSource]
 
 END]]></CDATA>
-    <CDATA name="TableSchemaXml"><![CDATA[<table name="UsrPMCostReassignmentSource">
-  <col name="CompanyID" type="Int" default="Zero" />
-  <col name="PMReassignmentID" type="Char(10)" />
-  <col name="LineID" type="Int" identity="true" />
-  <col name="ProjectID" type="Int" />
-  <col name="TaskID" type="Int" nullable="true" />
-  <col name="AccountGroupFrom" type="Int" nullable="true" />
-  <col name="AccountGroupTo" type="Int" nullable="true" />
-  <col name="NoteID" type="UniqueIdentifier" nullable="true" />
-  <col name="CreatedByID" type="UniqueIdentifier" />
-  <col name="tstamp" type="Timestamp" />
-  <col name="CreatedByScreenID" type="Char(8)" />
-  <col name="CreatedDateTime" type="DateTime" />
-  <col name="LastModifiedByID" type="UniqueIdentifier" />
-  <col name="LastModifiedDateTime" type="DateTime" />
-  <col name="LastModifiedByScreenID" type="Char(8)" />
-  <index name="PK_UsrPMCostReassignmentSource" clustered="true" primary="true" unique="true">
-    <col name="CompanyID" />
-    <col name="PMReassignmentID" />
-    <col name="LineID" />
-  </index>
-</table>]]></CDATA>
 </Sql>

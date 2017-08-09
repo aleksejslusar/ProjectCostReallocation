@@ -1,4 +1,4 @@
-﻿<Sql TableName="UsrPMCostReassignment" CustomScript="#CDATA" TableSchemaXml="#CDATA">
+﻿<Sql TableName="UsrPMCostReassignment" CustomScript="#CDATA">
     <CDATA name="CustomScript"><![CDATA[-- table UsrPMCostReassignment
 IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = N'dbo' AND TABLE_NAME = N'UsrPMCostReassignment')
 BEGIN
@@ -31,26 +31,4 @@ WITH (
 	ALLOW_PAGE_LOCKS  = ON
 ))
 END]]></CDATA>
-    <CDATA name="TableSchemaXml"><![CDATA[<table name="UsrPMCostReassignment">
-  <col name="CompanyID" type="Int" default="Zero" />
-  <col name="PMReassignmentID" type="Char(10)" />
-  <col name="BranchID" type="Int" />
-  <col name="Description" type="NVarChar(60)" nullable="true" />
-  <col name="Active" type="Bit" />
-  <col name="RevID" type="Int" />
-  <col name="NoteID" type="UniqueIdentifier" nullable="true" />
-  <col name="CreatedByID" type="UniqueIdentifier" />
-  <col name="tstamp" type="Timestamp" />
-  <col name="CreatedByScreenID" type="Char(8)" />
-  <col name="CreatedDateTime" type="DateTime" />
-  <col name="LastModifiedByID" type="UniqueIdentifier" />
-  <col name="LastModifiedDateTime" type="DateTime" />
-  <col name="LastModifiedByScreenID" type="Char(8)" />
-  <col name="UsrReassignmentSquareFootage" type="Decimal(19,4)" nullable="true" />
-  <col name="UsrReassignmentNumberOfUnits" type="Int" nullable="true" />
-  <index name="PK_UsrPMCostReassignment" clustered="true" primary="true" unique="true">
-    <col name="CompanyID" />
-    <col name="PMReassignmentID" />
-  </index>
-</table>]]></CDATA>
 </Sql>

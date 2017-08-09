@@ -1,4 +1,4 @@
-﻿<Sql TableName="UsrPMCostReassignmentHistory" CustomScript="#CDATA" TableSchemaXml="#CDATA">
+﻿<Sql TableName="UsrPMCostReassignmentHistory" CustomScript="#CDATA">
     <CDATA name="CustomScript"><![CDATA[-- table UsrPMCostReassignmentHistory
 IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = N'dbo' AND TABLE_NAME = N'UsrPMCostReassignmentHistory')
 BEGIN
@@ -26,13 +26,4 @@ REFERENCES [dbo].[UsrPMCostReassignment] ([CompanyID], [PMReassignmentID])
 ALTER TABLE [dbo].[UsrPMCostReassignmentHistory] CHECK CONSTRAINT [FK_UsrPMCostReassignment_UsrPMCostReassignmentHistory]
 
 END]]></CDATA>
-    <CDATA name="TableSchemaXml"><![CDATA[<table name="UsrPMCostReassignmentHistory">
-  <col name="CompanyID" type="Int" default="Zero" />
-  <col name="TranID" type="BigInt" />
-  <col name="PMReassignmentID" type="Char(10)" />
-  <index name="PK_UsrPMCostReassignmentHistory" clustered="true" primary="true" unique="true">
-    <col name="CompanyID" />
-    <col name="TranID" />
-  </index>
-</table>]]></CDATA>
 </Sql>
