@@ -32,7 +32,7 @@ namespace ProjectCostReallocation.DAC
 		{
 		}
 		protected string _PMReassignmentID;
-		[PXDBString(10, IsFixed = true, IsKey = true)]
+		[PXDBString(UsrPMCostReassignment.pMReassignmentID.Length, IsFixed = true, IsKey = true)]
 		[PXDefault(typeof(UsrPMCostReassignment.pMReassignmentID))]
         [PXParent(typeof(Select<UsrPMCostReassignment, Where<UsrPMCostReassignment.pMReassignmentID, Equal<Current<pMReassignmentID>>>>))]
         public virtual string PMReassignmentID

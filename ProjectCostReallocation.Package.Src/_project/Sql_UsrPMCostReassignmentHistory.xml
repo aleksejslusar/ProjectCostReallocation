@@ -6,7 +6,7 @@ BEGIN
 	CREATE TABLE [dbo].UsrPMCostReassignmentHistory(
 	 [CompanyID] [int] NOT NULL	
 	,[TranID] [bigint] NOT NULL	
-	,[PMReassignmentID] [char] (10) NOT NULL	
+	,[PMReassignmentID] [nvarchar] (15) NOT NULL	
 CONSTRAINT [PK_UsrPMCostReassignmentHistory] PRIMARY KEY CLUSTERED 
 	(
 	[CompanyID] ASC,

@@ -1,6 +1,5 @@
 ﻿using System;
 using PX.Data;
-using PX.Data.EP;
 using PX.Objects.CS;
 using PX.Objects.GL;
 
@@ -12,16 +11,16 @@ namespace ProjectCostReallocation.DAC
         #region PMReassignmentID
         public abstract class pMReassignmentID : IBqlField
 		{
-		}
+            public const int Length = 15;
+        }
 		protected string _PMReassignmentID;
-		[PXDBString(10, IsKey = true, InputMask = ">CCCCCCCCCCCCCCC")]
+		[PXDBString(pMReassignmentID.Length, IsUnicode = true, IsKey = true, InputMask = ">CCCCCCCCCCCCCCC")]
 		[PXDefault]
-		[PXUIField(DisplayName = "Reassignment ID")]
+		[PXUIField(DisplayName = "Reassignment ID", Visibility = PXUIVisibility.SelectorVisible)]
         [AutoNumber(typeof(Search<PMSetupExt.usrReassignmentNumberingID>), typeof(AccessInfo.businessDate))]
         [PXSelector(typeof(Search<pMReassignmentID>),
                     typeof(pMReassignmentID),
-                    typeof(description))]
-        [PXFieldDescription]
+                    typeof(description))]       
         public virtual string PMReassignmentID
 		{
 			get

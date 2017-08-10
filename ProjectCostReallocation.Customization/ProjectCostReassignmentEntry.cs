@@ -91,8 +91,6 @@ namespace ProjectCostReallocation
         {
         }
 
-        
-
         #endregion
 
         #region Actions
@@ -268,9 +266,7 @@ namespace ProjectCostReallocation
             }
         }
 
-      
-
-      protected virtual void UsrPMCostReassignment_RowUpdating(PXCache sender, PXRowUpdatingEventArgs e)
+        protected virtual void UsrPMCostReassignment_RowUpdating(PXCache sender, PXRowUpdatingEventArgs e)
         {
             var row = (UsrPMCostReassignment) e.Row;
             if (!CheckIsAutonumberingConfigured(sender, row))
@@ -296,7 +292,17 @@ namespace ProjectCostReallocation
         protected virtual void UsrPMCostReassignment_Active_FieldUpdating(PXCache sender, PXFieldUpdatingEventArgs e)
         {
             var row = e.Row as UsrPMCostReassignment;
-            if (row?.CreatedByID != null && row.Active.GetValueOrDefault() == false && (bool)e.NewValue && PMCostReassignmentHistory.Select().Any() )
+            bool newActiveValue;
+            if (e.NewValue is string)
+            {
+                newActiveValue = bool.Parse(e.NewValue.ToString().ToLower());
+            }
+            else
+            {
+                newActiveValue = (bool) e.NewValue;
+            }
+
+            if (row?.CreatedByID != null && row.Active.GetValueOrDefault() == false && newActiveValue == true && PMCostReassignmentHistory.Select().Any() )
             {
                 var result = PMCostReassignment.Ask("Reassignment Activation", "Do you want to assign new Revision ID for the given Reassignment?", MessageButtons.YesNo, MessageIcon.Question);
                 if (result != WebDialogResult.No)

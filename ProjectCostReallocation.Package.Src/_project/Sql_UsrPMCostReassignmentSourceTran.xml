@@ -5,7 +5,7 @@ BEGIN
     PRINT 'Create table UsrPMCostReassignmentSourceTran'
 	CREATE TABLE [dbo].UsrPMCostReassignmentSourceTran(
 	 [CompanyID] [int] NOT NULL
-	,[PMReassignmentID] [nvarchar] (10) NOT NULL		
+	,[PMReassignmentID] [nvarchar] (15) NOT NULL		
 	,[SourceTranID] [bigint] NOT NULL
 	,[TranID] [bigint] NOT NULL	
 	,[NoteID] [uniqueidentifier] NULL	

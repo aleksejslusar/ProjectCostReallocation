@@ -5,7 +5,7 @@ BEGIN
     PRINT 'Create table UsrPMCostReassignmentPercentage'
 	CREATE TABLE [dbo].UsrPMCostReassignmentPercentage(
 	 [CompanyID] [int] NOT NULL
-	,[PMReassignmentID] [nvarchar] (10) NOT NULL			
+	,[PMReassignmentID] [nvarchar] (15) NOT NULL			
 	,[TranID] [bigint] NOT NULL	
 	,[ReassignmentSelection] [char] (1) NOT NULL	
 	,[SourceValue] [decimal] (19,4) NOT NULL	
