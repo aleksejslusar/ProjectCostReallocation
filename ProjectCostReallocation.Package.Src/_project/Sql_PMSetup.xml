@@ -6,6 +6,13 @@ BEGIN
 	PRINT 'Column PMSetup.UsrReassignmentNumberingID created'	
 END
 
+IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = N'dbo' AND TABLE_NAME = N'PMSetup' AND COLUMN_NAME = N'UsrAutoReleaseReassignment')
+BEGIN
+	ALTER TABLE dbo.PMSetup
+	ADD UsrAutoReleaseReassignment bit NOT NULL DEFAULT(0)
+	PRINT 'Column PMSetup.UsrAutoReleaseReassignment created'	
+END
+
 IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = N'dbo' AND TABLE_NAME = N'PMSetup' AND COLUMN_NAME = N'UsrReassignmentAccountID')
 BEGIN
 	ALTER TABLE dbo.PMSetup
