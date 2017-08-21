@@ -20,18 +20,18 @@
 		<Template>
 			<px:PXLayoutRule runat="server" StartRow="True" StartColumn="True"></px:PXLayoutRule>
             <px:PXSelector ID="edPMReassignmentID" runat="server" DataField="PMReassignmentID"></px:PXSelector>
-            <px:PXTextEdit ID="edDescription" runat="server" AlreadyLocalized="False" DataField="Description" DefaultLocale=""></px:PXTextEdit>
+            <px:PXTextEdit ID="edDescription" runat="server" AlreadyLocalized="False" DataField="Description"></px:PXTextEdit>
             <px:PXLayoutRule runat="server" StartColumn="True" ColumnWidth="XM" LabelsWidth="S"></px:PXLayoutRule>
             <px:PXCheckBox ID="edActive" runat="server" AlreadyLocalized="False" DataField="Active" Text="Active" CommitChanges="True"></px:PXCheckBox>
-            <px:PXNumberEdit ID="edRevID" runat="server" AlreadyLocalized="False" DataField="RevID">
+            <px:PXNumberEdit ID="edRevID" runat="server" AlreadyLocalized="False" DataField="RevID" DefaultLocale="">
             </px:PXNumberEdit>
             <px:PXLayoutRule runat="server" LabelsWidth="SM" StartColumn="True">
             </px:PXLayoutRule>
             <px:PXLayoutRule runat="server" GroupCaption="Reassignment Totals" StartGroup="True">
             </px:PXLayoutRule>
-            <px:PXNumberEdit ID="edReassignmentValue1Total" runat="server" AlreadyLocalized="False" DataField="ReassignmentValue1Total">
+            <px:PXNumberEdit ID="edReassignmentValue1Total" runat="server" AlreadyLocalized="False" DataField="ReassignmentValue1Total" DefaultLocale="">
             </px:PXNumberEdit>
-            <px:PXNumberEdit ID="edReassignmentValue2Total" runat="server" AlreadyLocalized="False" DataField="ReassignmentValue2Total">
+            <px:PXNumberEdit ID="edReassignmentValue2Total" runat="server" AlreadyLocalized="False" DataField="ReassignmentValue2Total" DefaultLocale="">
             </px:PXNumberEdit>
 		</Template>
 	</px:PXFormView>

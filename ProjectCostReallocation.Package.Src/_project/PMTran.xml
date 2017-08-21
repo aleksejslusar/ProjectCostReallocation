@@ -1,0 +1,3 @@
+﻿<Table TableName="PMTran">
+    <Column TableName="PMTran" ColumnName="UsrReassigned" ColumnType="bool" AllowNull="True" MaxLength="25" DecimalPrecision="2" IsNewColumn="True" IsUnicode="True" />
+</Table>

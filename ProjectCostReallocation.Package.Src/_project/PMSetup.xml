@@ -1,4 +1,6 @@
 ﻿<Table TableName="PMSetup">
     <Column TableName="PMSetup" ColumnName="UsrReassignmentNumberingID" ColumnType="string" AllowNull="True" MaxLength="10" DecimalPrecision="2" DecimalLength="10" IsNewColumn="True" IsUnicode="True" />
     <Column TableName="PMSetup" ColumnName="UsrAutoReleaseReassignment" ColumnType="bool" AllowNull="True" MaxLength="25" DecimalPrecision="2" IsNewColumn="True" IsUnicode="True" />
+    <Column TableName="PMSetup" ColumnName="UsrReassignmentAccountID" ColumnType="int" AllowNull="True" MaxLength="25" DecimalPrecision="2" IsNewColumn="True" IsUnicode="True" />
+    <Column TableName="PMSetup" ColumnName="UsrReassignmentSubID" ColumnType="int" AllowNull="True" MaxLength="25" DecimalPrecision="2" IsNewColumn="True" IsUnicode="True" />
 </Table>

@@ -1,8 +1,0 @@
-﻿<Sql TableName="PMTran" CustomScript="#CDATA">
-    <CDATA name="CustomScript"><![CDATA[IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = N'dbo' AND TABLE_NAME = N'PMTran' AND COLUMN_NAME = N'UsrReassigned')
-BEGIN
-	ALTER TABLE dbo.PMTran
-	ADD UsrReassigned bit NOT NULL DEFAULT(0)
-	PRINT 'Column PMTran.UsrReassigned created'	
-END]]></CDATA>
-</Sql>

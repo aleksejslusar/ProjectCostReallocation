@@ -1,37 +1,20 @@
-﻿<Sql TableName="UsrPMCostReassignmentRunHistory" CustomScript="#CDATA">
-    <CDATA name="CustomScript"><![CDATA[-- table UsrPMCostReassignmentRunHistory
-IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = N'dbo' AND TABLE_NAME = N'UsrPMCostReassignmentRunHistory')
-BEGIN
-    PRINT 'Create table UsrPMCostReassignmentRunHistory'
-	CREATE TABLE [dbo].UsrPMCostReassignmentRunHistory(
-	 [CompanyID] [int] NOT NULL
-	,[PMReassignmentID] [nvarchar] (15) NOT NULL		
-	,[RevID] [int] NOT NULL	
-	,[SourceTranID] [bigint] NOT NULL
-	,[SourceTaskID] [int] NOT NULL
-	,[DestinationTranID] [bigint] NOT NULL
-	,[DestinationTaskID] [int] NOT NULL	
-CONSTRAINT [PK_UsrPMCostReassignmentRunHistory] PRIMARY KEY CLUSTERED 
-	(
-	[CompanyID] ASC,
-	[PMReassignmentID] ASC,
-	[RevID] ASC,
-	[SourceTranID] ASC,
-	[SourceTaskID] ASC,
-	[DestinationTranID] ASC,
-	[DestinationTaskID] ASC
-	)
-WITH (
-	PAD_INDEX  = OFF, 
-	STATISTICS_NORECOMPUTE  = OFF, 
-	IGNORE_DUP_KEY = OFF, 
-	ALLOW_ROW_LOCKS  = ON, 
-	ALLOW_PAGE_LOCKS  = ON
-))
-
-ALTER TABLE [dbo].[UsrPMCostReassignmentRunHistory]  WITH NOCHECK ADD  CONSTRAINT [FK_UsrPMCostReassignment_UsrPMCostReassignmentRunHistory] FOREIGN KEY([CompanyID], [PMReassignmentID])
-REFERENCES [dbo].[UsrPMCostReassignment] ([CompanyID], [PMReassignmentID])
-ALTER TABLE [dbo].[UsrPMCostReassignmentRunHistory] CHECK CONSTRAINT [FK_UsrPMCostReassignment_UsrPMCostReassignmentRunHistory]
-
-END]]></CDATA>
+﻿<Sql TableName="UsrPMCostReassignmentRunHistory" TableSchemaXml="#CDATA">
+    <CDATA name="TableSchemaXml"><![CDATA[<table name="UsrPMCostReassignmentRunHistory">
+  <col name="CompanyID" type="Int" default="Zero" />
+  <col name="PMReassignmentID" type="NVarChar(15)" />
+  <col name="RevID" type="Int" />
+  <col name="SourceTranID" type="BigInt" />
+  <col name="SourceTaskID" type="Int" />
+  <col name="DestinationTranID" type="BigInt" />
+  <col name="DestinationTaskID" type="Int" />
+  <index name="PK_UsrPMCostReassignmentRunHistory" clustered="true" primary="true" unique="true">
+    <col name="CompanyID" />
+    <col name="PMReassignmentID" />
+    <col name="RevID" />
+    <col name="SourceTranID" />
+    <col name="SourceTaskID" />
+    <col name="DestinationTranID" />
+    <col name="DestinationTaskID" />
+  </index>
+</table>]]></CDATA>
 </Sql>
