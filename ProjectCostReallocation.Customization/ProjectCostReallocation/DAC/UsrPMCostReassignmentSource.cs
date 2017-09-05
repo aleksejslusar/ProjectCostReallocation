@@ -13,7 +13,7 @@ namespace ProjectCostReallocation
 		}
 		protected string _PMReassignmentID;
 		[PXDBString(PMReassignmentIDValues.Length, IsUnicode = true, IsKey = true)]
-		[PXDefault(typeof(UsrPMCostReassignment.pMReassignmentID))]
+		[PXDBDefault(typeof(UsrPMCostReassignment.pMReassignmentID))]
 		[PXUIField(DisplayName = "PMReassignmentID", Visible = false)]
         [PXParent(typeof(Select<UsrPMCostReassignment, Where<UsrPMCostReassignment.pMReassignmentID, Equal<Current<pMReassignmentID>>>>))]
         
@@ -54,9 +54,9 @@ namespace ProjectCostReallocation
 		}
 		protected int? _ProjectID;				
         [PXDBInt(IsKey = true)]
-        [PXDefault(typeof(projectID))]
+        [PXDefault]
         [PXUIField(DisplayName = "Project ID", Required = true)]
-        [PXSelector(typeof(Search<PMProject.contractID, Where<PMProject.baseType, Equal<PMProject.ProjectBaseType>, And<PMProject.isTemplate, NotEqual<True>>>>), 
+        [PXSelector(typeof(Search<PMProject.contractID, Where<PMProject.baseType, Equal<PMProject.ProjectBaseType>, And<PMProject.nonProject, Equal<False>, And<PMProject.isTemplate, NotEqual<True>>>>>), 
                     typeof(PMProject.contractCD), 
                     typeof(PMProject.description),                
                     SubstituteKey = typeof(PMProject.contractCD))]
@@ -78,8 +78,8 @@ namespace ProjectCostReallocation
 		}
 		protected int? _TaskID;
 		[PXDBInt]
-		[PXUIField(DisplayName = "Task ID", Visibility = PXUIVisibility.SelectorVisible)]
-        [PXDefault(typeof(taskID))]
+		[PXUIField(DisplayName = "Task ID", Required = true)]
+        [PXDefault]
         [PXSelector(typeof(Search<PMTask.taskID, Where<PMTask.projectID, Equal<Current<projectID>>>>),
                     typeof(PMTask.taskCD),
                     typeof(PMTask.description),

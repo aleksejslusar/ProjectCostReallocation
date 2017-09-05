@@ -1,0 +1,4 @@
+﻿<Sql TableName="PMTran" CustomScript="#CDATA">
+    <CDATA name="CustomScript"><![CDATA[-- Set UsrReassigned column value  to 0 instead of NULL
+update PMTran set UsrReassigned = 0 where UsrReassigned IS NULL]]></CDATA>
+</Sql>

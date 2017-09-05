@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using ProjectCostReallocation.ProjectCostReallocation.Helpers;
 using PX.Data;
 using PX.Objects.GL;
 using PX.Objects.PM;
@@ -40,9 +41,9 @@ namespace ProjectCostReallocation
 
         [PXCopyPasteHiddenView]
         public PXSelectJoin<PMTran,
-                    InnerJoin<UsrPMCostReassignmentHistory, On<PMTran.tranID, Equal<UsrPMCostReassignmentHistory.tranID>>, 
-                    LeftJoin<PMRegister, On<PMRegister.refNbr, Equal<PMTran.refNbr>, And<PMRegister.module, Equal<PMTran.tranType>>>>>,                    
-                Where<UsrPMCostReassignmentHistory.pMReassignmentID, Equal<Current<UsrPMCostReassignment.pMReassignmentID>>>> PMCostReassignmentHistory;
+                  InnerJoin<UsrPMCostReassignmentHistory, On<PMTran.tranID, Equal<UsrPMCostReassignmentHistory.tranID>>, 
+                   LeftJoin<PMRegister, On<PMRegister.refNbr, Equal<PMTran.refNbr>, And<PMRegister.module, Equal<PMTran.tranType>>>>>,                    
+                      Where<UsrPMCostReassignmentHistory.pMReassignmentID, Equal<Current<UsrPMCostReassignment.pMReassignmentID>>>> PMCostReassignmentHistory;
 
         [PXCopyPasteHiddenView]
         public PXSelect<UsrPMCostReassignmentRunHistory, 
@@ -60,13 +61,13 @@ namespace ProjectCostReallocation
         public PXSelect<UsrPMCostReassignmentHistory> ReassignmentHistoryView;
         public PXSelect<UsrPMCostReassignmentSourceTran> ReassignmentSourceTranView;
         public PXSelect<UsrPMCostReassignmentPercentage> ReassignmentPercentageView;
-        public PXSelect<UsrPMCostReassignmentRunHistory, Where<UsrPMCostReassignmentRunHistory.pMReassignmentID, Equal<Required<UsrPMCostReassignmentRunHistory.pMReassignmentID>>>> ReassignmentRunHistoryView;
+        public PXSelect<UsrPMCostReassignmentRunHistory> ReassignmentRunHistoryView;
         public PXSelectJoin<UsrPMCostReassignmentSourceTran,
-                                               InnerJoin<UsrPMCostReassignmentRunHistory, On<UsrPMCostReassignmentRunHistory.sourceTranID, Equal<UsrPMCostReassignmentSourceTran.tranID>>,
-                                               InnerJoin<PMTran, On<PMTran.tranID, Equal<UsrPMCostReassignmentRunHistory.destinationTranID>>>>,
-                                                   Where<UsrPMCostReassignmentSourceTran.sourceTranID, Equal<Required<UsrPMCostReassignmentSourceTran.sourceTranID>>,
-                                                     And<UsrPMCostReassignmentRunHistory.pMReassignmentID, Equal<Required<UsrPMCostReassignmentRunHistory.pMReassignmentID>>,
-                                                     And<UsrPMCostReassignmentRunHistory.revID, Equal<UsrPMCostReassignmentRunHistory.revID>>>>> ProcessedTransactions;           
+                  InnerJoin<UsrPMCostReassignmentRunHistory, On<UsrPMCostReassignmentRunHistory.sourceTranID, Equal<UsrPMCostReassignmentSourceTran.tranID>>,
+                  InnerJoin<PMTran, On<PMTran.tranID, Equal<UsrPMCostReassignmentRunHistory.destinationTranID>>>>,
+                      Where<UsrPMCostReassignmentSourceTran.sourceTranID, Equal<Required<UsrPMCostReassignmentSourceTran.sourceTranID>>,
+                        And<UsrPMCostReassignmentRunHistory.pMReassignmentID, Equal<Required<UsrPMCostReassignmentRunHistory.pMReassignmentID>>,
+                        And<UsrPMCostReassignmentRunHistory.revID, Equal<Required<UsrPMCostReassignmentRunHistory.revID>>>>>> ProcessedTransactions;           
         #endregion
 
         #region CacheAttached
@@ -114,7 +115,7 @@ namespace ProjectCostReallocation
             if (PMCostReassignmentSource.Current != null)
             {
                 var currentProjectID = PMCostReassignmentSource.Current.ProjectID;
-                ViewProjectCommon(currentProjectID);
+                PMCostReassignmentViewer.ViewProjectCommon(currentProjectID);
             }
 
             return adapter.Get();
@@ -128,7 +129,7 @@ namespace ProjectCostReallocation
             if (PMCostReassignmentSource.Current != null)
             {
                 var currentTaskID = PMCostReassignmentSource.Current.TaskID;
-                ViewTaskCommon(currentTaskID);
+                PMCostReassignmentViewer.ViewTaskCommon(currentTaskID);
             }
                             
             return adapter.Get();
@@ -142,7 +143,7 @@ namespace ProjectCostReallocation
             if (PMCostReassignmentSource.Current != null)
             {
                 var currentProjectID = PMCostReassignmentDestination.Current.ProjectID;
-                ViewProjectCommon(currentProjectID);
+                PMCostReassignmentViewer.ViewProjectCommon(currentProjectID);
             }
 
             return adapter.Get();
@@ -156,7 +157,7 @@ namespace ProjectCostReallocation
             if (PMCostReassignmentSource.Current != null)
             {
                 var currentTaskID = PMCostReassignmentDestination.Current.TaskID;
-                ViewTaskCommon(currentTaskID);
+                PMCostReassignmentViewer.ViewTaskCommon(currentTaskID);
             }
 
             return adapter.Get();
@@ -170,7 +171,7 @@ namespace ProjectCostReallocation
             if (PMCostReassignmentSource.Current != null)
             {
                 var currentProjectID = PMCostReassignmentHistory.Current.ProjectID;
-                ViewProjectCommon(currentProjectID);
+                PMCostReassignmentViewer.ViewProjectCommon(currentProjectID);
             }
 
             return adapter.Get();
@@ -184,7 +185,7 @@ namespace ProjectCostReallocation
             if (PMCostReassignmentSource.Current != null)
             {
                 var currentTaskID = PMCostReassignmentHistory.Current.TaskID;
-                ViewTaskCommon(currentTaskID);
+                PMCostReassignmentViewer.ViewTaskCommon(currentTaskID);
             }
                        
             return adapter.Get();
@@ -226,18 +227,22 @@ namespace ProjectCostReallocation
 
         #endregion
 
+        #region .ctor
+
+        public ProjectCostReassignmentEntry()
+        {
+            //Check PMsetup value for autonumbering
+            var value = GetPMSetupUsrReassignmentNumberingID();
+            if (string.IsNullOrEmpty(value))
+            {
+                throw new PXSetupNotEnteredException<PMSetup>(PMCostReassignmentMessages.REASSIGNMENT_NUMBERING_SEQUENCE_VALUE_NOT_CONFIGURED);
+            }
+        }
+        #endregion
+
         #region Event handlers
 
         #region UsrPMCostReassignment
-
-        protected virtual void UsrPMCostReassignment_RowInserting(PXCache sender, PXRowInsertingEventArgs e)
-        {
-            var row = (UsrPMCostReassignment) e.Row;
-            if (!CheckIsAutonumberingConfigured(sender, row))
-            {
-                e.Cancel = true;
-            }
-        }
 
         protected virtual void UsrPMCostReassignment_RowSelected(PXCache sender, PXRowSelectedEventArgs e)
         {
@@ -260,31 +265,11 @@ namespace ProjectCostReallocation
                 PMCostReassignmentDestination.Cache.AllowUpdate = !isActive;
                 PMCostReassignmentDestination.Cache.AllowDelete = !isActive;
 
-                //no need to calculate when doing import. It will just slow down the import.
-                if (!IsImport)
-                {
-                    row.ReassignmentValue1Total = 0;
-                    row.ReassignmentValue2Total = 0;
-                                       
-                    foreach (var result in PMCostReassignmentDestination.Select())
-                    {
-                        if (VerifyDestinationRowProcessed(result)) continue;
-                        var dest = result.GetItem<UsrPMCostReassignmentDestination>();
-                        row.ReassignmentValue1Total += dest.ReassignmentValue1;
-                        row.ReassignmentValue2Total += dest.ReassignmentValue2;
-                    }
-                }
+                CalcutaleReassignmentValueTotals(row);
             }
         }
 
-        protected virtual void UsrPMCostReassignment_RowUpdating(PXCache sender, PXRowUpdatingEventArgs e)
-        {
-            var row = (UsrPMCostReassignment) e.Row;
-            if (!CheckIsAutonumberingConfigured(sender, row))
-            {
-                e.Cancel = true;
-            }
-        }
+        
 
         protected virtual void UsrPMCostReassignment_Active_FieldVerifying(PXCache sender, PXFieldVerifyingEventArgs e)
         {
@@ -292,9 +277,7 @@ namespace ProjectCostReallocation
             {
                 var row = e.Row as UsrPMCostReassignment;
                 if (row != null && (row.ReassignmentValue1Total.GetValueOrDefault() == 0 && row.ReassignmentValue2Total == 0))
-                {
-                    e.NewValue = false;
-                    e.Cancel = true;
+                {                    
                     throw new PXSetPropertyException(PMCostReassignmentMessages.SOURCE_AND_DESTINATION_TOTALS_MUST_BE_BALANCED_BEFORE_ACTIVATING_THE_REASSIGNMENT);
                 }                
             }
@@ -303,17 +286,14 @@ namespace ProjectCostReallocation
         protected virtual void UsrPMCostReassignment_Active_FieldUpdating(PXCache sender, PXFieldUpdatingEventArgs e)
         {
             var row = e.Row as UsrPMCostReassignment;
-            bool newActiveValue;
-            if (e.NewValue is string)
-            {
-                newActiveValue = bool.Parse(e.NewValue.ToString().ToLower());
-            }
-            else
-            {
-                newActiveValue = (bool) e.NewValue;
-            }
+            var rowStatus = PMCostReassignment.Cache.GetStatus(row);
+            var isNew = rowStatus == PXEntryStatus.Notchanged || rowStatus == PXEntryStatus.Inserted;
 
-            if (row?.CreatedByID != null && row.Active.GetValueOrDefault() == false && newActiveValue == true && PMCostReassignmentHistory.Select().Any() )
+            if (row == null || isNew) return;
+
+            var oldActiveValue = row.Active.GetValueOrDefault();
+            var newActiveValue = (bool) e.NewValue;
+            if ((!oldActiveValue && newActiveValue) && PMCostReassignmentHistory.Select().Any())
             {
                 var result = PMCostReassignment.Ask("Reassignment Activation", "Do you want to assign new Revision ID for the given Reassignment?", MessageButtons.YesNo, MessageIcon.Question);
                 if (result != WebDialogResult.No)
@@ -327,14 +307,6 @@ namespace ProjectCostReallocation
 
         #region UsrPMCostReassignmentSource
 
-        protected virtual void UsrPMCostReassignmentSource_RowPersisting(PXCache sender, PXRowPersistingEventArgs e)
-        {
-            if (e.Operation == PXDBOperation.Insert || e.Operation == PXDBOperation.Update)
-            {
-                SetParentID<UsrPMCostReassignmentSource>(e);
-            }
-        }
-
         protected virtual void UsrPMCostReassignmentSource_ProjectID_FieldUpdated(PXCache sender, PXFieldUpdatedEventArgs e)
         {
             var row = (UsrPMCostReassignmentSource)e.Row;
@@ -345,13 +317,17 @@ namespace ProjectCostReallocation
 
         protected virtual void UsrPMCostReassignmentSource_TaskID_FieldVerifying(PXCache sender, PXFieldVerifyingEventArgs e)
         {
-            var newTaskId = e.NewValue as int?;
-            var usedTaskIDs = PMCostReassignmentDestination.Select().Select(i => ((UsrPMCostReassignmentDestination)i).TaskID);
-            if (usedTaskIDs.Any(i => i.GetValueOrDefault() == newTaskId.GetValueOrDefault()))
+            var row = e.Row as UsrPMCostReassignmentSource;
+            if (row != null)
             {
-                e.Cancel = true;
-                e.NewValue = ((UsrPMCostReassignmentSource)e.Row).TaskID;
-                throw new PXSetPropertyException(PMCostReassignmentMessages.SAME_PROJECT_TASK_CANNOT_BE_USED_AS_A_SOURCE_AND_AS_A_DESTINATION_TASK_IN_A_SINGLE_REASSIGNMENT, PXErrorLevel.Error);
+                var newTaskId = e.NewValue as int?;
+                var usedTaskIDs = PMCostReassignmentDestination.Select().Select(i => ((UsrPMCostReassignmentDestination) i).TaskID);
+                if (usedTaskIDs.Any(i => i.GetValueOrDefault() == newTaskId.GetValueOrDefault()))
+                {
+                    throw new PXSetPropertyException(PMCostReassignmentMessages.SAME_PROJECT_TASK_CANNOT_BE_USED_AS_A_SOURCE_AND_AS_A_DESTINATION_TASK_IN_A_SINGLE_REASSIGNMENT,PXErrorLevel.RowError);
+                }
+
+                VerifyingPMTaskUseInOtherReassignments(row.PMReassignmentID, newTaskId);
             }
         }
 
@@ -371,54 +347,32 @@ namespace ProjectCostReallocation
         {
             var row = (UsrPMCostReassignmentDestination)e.Row;
             row.TaskID = null;
-            row.ReassignmentSelection = "C";
+            row.ReassignmentSelection = ReassignmentSelectionAttribute.Values.UnitCount;
         }
 
-        protected virtual void UsrPMCostReassignmentDestination_RowPersisting(PXCache sender, PXRowPersistingEventArgs e)
+        protected virtual void UsrPMCostReassignmentDestination_ReassignmentValue1_FieldVerifying(PXCache sender, PXFieldVerifyingEventArgs e)
         {
-            if (e.Operation == PXDBOperation.Insert || e.Operation == PXDBOperation.Update)
-            {
-                SetParentID<UsrPMCostReassignmentDestination>(e);
-            }
+            VerifyingReassignmentValue1MoreThanZero(e);
         }
 
-        protected virtual void UsrPMCostReassignmentDestination_SquareFootage_FieldUpdated(PXCache sender, PXFieldUpdatedEventArgs e)
+        protected virtual void UsrPMCostReassignmentDestination_ReassignmentValue2_FieldVerifying(PXCache sender, PXFieldVerifyingEventArgs e)
         {
-            var row = e.Row as UsrPMCostReassignmentDestination;
-            if (row != null)
-            {                
-                VerifyingPMTaskUseInOtherReassignments(row);
-            }
-        }
-
-        protected virtual void UsrPMCostReassignmentDestination_NumberOfUnits_FieldUpdated(PXCache sender, PXFieldUpdatedEventArgs e)
-        {
-            var row = e.Row as UsrPMCostReassignmentDestination;
-            if (row != null)
-            {                
-                VerifyingPMTaskUseInOtherReassignments(row);
-            }
-        }
-
-        protected virtual void UsrPMCostReassignmentDestination_SquareFootage_FieldVerifying(PXCache sender, PXFieldVerifyingEventArgs e)
-        {
-            VerifyingSquareFootageMoreThanZero(e);
-        }
-
-        protected virtual void UsrPMCostReassignmentDestination_NumberOfUnits_FieldVerifying(PXCache sender, PXFieldVerifyingEventArgs e)
-        {
-            VerifyingNumberOfUnitsMoreThanZero(e);
+            VerifyingReassignmentValue2MoreThanZero(e);
         }
 
         protected virtual void UsrPMCostReassignmentDestination_TaskID_FieldVerifying(PXCache sender, PXFieldVerifyingEventArgs e)
         {
-            var newTaskId = e.NewValue as int?;
-            var usedTaskIDs = PMCostReassignmentSource.Select().Select(i => ((UsrPMCostReassignmentSource)i).TaskID);
-            if (usedTaskIDs.Any(i => i.GetValueOrDefault() == newTaskId.GetValueOrDefault()))
+            var row = e.Row as UsrPMCostReassignmentDestination;
+            if (row != null)
             {
-                e.Cancel = true;
-                e.NewValue = ((UsrPMCostReassignmentDestination)e.Row).TaskID;
-                throw new PXSetPropertyException(PMCostReassignmentMessages.SAME_PROJECT_TASK_CANNOT_BE_USED_AS_A_SOURCE_AND_AS_A_DESTINATION_TASK_IN_A_SINGLE_REASSIGNMENT, PXErrorLevel.Error);
+                var newTaskId = e.NewValue as int?;
+                var usedTaskIDs = PMCostReassignmentSource.Select().Select(i => ((UsrPMCostReassignmentSource)i).TaskID);
+                if (usedTaskIDs.Any(i => i.GetValueOrDefault() == newTaskId.GetValueOrDefault()))
+                {
+                    throw new PXSetPropertyException(PMCostReassignmentMessages.SAME_PROJECT_TASK_CANNOT_BE_USED_AS_A_SOURCE_AND_AS_A_DESTINATION_TASK_IN_A_SINGLE_REASSIGNMENT, PXErrorLevel.RowError);
+                }
+
+                VerifyingPMTaskUseInOtherReassignments(row.PMReassignmentID, newTaskId);
             }
         }
 
@@ -431,6 +385,8 @@ namespace ProjectCostReallocation
         {
             
             PMCostReassignment.Current = PMCostReassignment.Search<UsrPMCostReassignment.pMReassignmentID>(entity.PMReassignmentID);
+            var registerEntry = CreateInstance<RegisterEntry>();
+            var reassignmentEntry = this;
 
             using (var ts = new PXTransactionScope())
             {
@@ -441,9 +397,6 @@ namespace ProjectCostReallocation
                 //4. Write data information to history and log tables
                 //5. Mark source transations as reassigned
                 //6. Release PMRegister
-
-                var registerEntry = CreateInstance<RegisterEntry>();
-                var reassignmentEntry = this;
 
                 using (var insertPMRegister = new AddPMRegisterHandler(reassignmentEntry, registerEntry, entity))
                 {
@@ -468,83 +421,70 @@ namespace ProjectCostReallocation
                 }
 
                 ts.Complete();
-
-                registerEntry.Clear();
-                reassignmentEntry.Clear();
             }
-           
+            
+            //Save 
+            reassignmentEntry.Actions.PressSave();
+            
+            //Clear
+            registerEntry.Clear();
+            reassignmentEntry.Clear();
 
         }
         #endregion
 
-
         #region Private
 
-        private bool VerifyDestinationRowProcessed(PXResult<UsrPMCostReassignmentDestination> result)
+        private void CalcutaleReassignmentValueTotals(UsrPMCostReassignment row)
         {
-            //Check task is completed
-            var task = result.GetItem<PMTask>();
-            return task != null && task.Status == ProjectTaskStatus.Completed;
-        }
-
-        private bool CheckIsAutonumberingConfigured(PXCache sender, UsrPMCostReassignment row)
-        {
-            //Check PMsetup value for autonumbering
-            var value = GetPMSetupUsrReassignmentNumberingID();
-            if (string.IsNullOrEmpty(value))
+            if (!IsImport)
             {
-                row.PMReassignmentID = null;
-                sender.RaiseExceptionHandling<UsrPMCostReassignment.pMReassignmentID>(row, null, new PXSetPropertyException(PMCostReassignmentMessages.REASSIGNMENT_NUMBERING_SEQUENCE_VALUE_NOT_CONFIGURED, PXErrorLevel.Error));
-                return false;
+                row.ReassignmentValue1Total = 0;
+                row.ReassignmentValue2Total = 0;
+
+                foreach (var result in PMCostReassignmentDestination.Select())
+                {
+                    var dest = result.GetItem<UsrPMCostReassignmentDestination>();
+                    var task = result.GetItem<PMTask>();
+                    if (task != null && task.Status != ProjectTaskStatus.Completed)
+                    {
+                        row.ReassignmentValue1Total += dest.ReassignmentValue1;
+                        row.ReassignmentValue2Total += dest.ReassignmentValue2;
+                    }
+                }
             }
-            return true;
         }
 
         private string GetPMSetupUsrReassignmentNumberingID()
         {
-            PMSetup setup = PXSelect<PMSetup>.Select(this);
+            PMSetup setup = PMSetupSelect.Select();
             var value = setup.GetExtension<PMSetupExt>()?.UsrReassignmentNumberingID;
             return value;
         }
 
-        private static void ViewProjectCommon(int? currentProjectID)
+        private void VerifyingPMTaskUseInOtherReassignments(string pmReassignmentID, int? taskID)
         {
-            var graph = CreateInstance<ProjectEntry>();
-            graph.Project.Current = graph.Project.Search<PMProject.contractID>(currentProjectID);
-            if (graph.Project.Current != null)
-            {
-                throw new PXRedirectRequiredException(graph, true, Messages.ViewProject) { Mode = PXBaseRedirectException.WindowMode.NewWindow };
-            }
-        }
+            var sourceReassignments = new PXSelect<UsrPMCostReassignmentSource, 
+                                             Where<UsrPMCostReassignmentSource.taskID, Equal<Required<UsrPMCostReassignmentSource.taskID>>, 
+                                               And<UsrPMCostReassignmentSource.pMReassignmentID, NotEqual<Required<UsrPMCostReassignmentSource.pMReassignmentID>>>>>(this);
 
-        private static void ViewTaskCommon(int? currentTaskID)
-        {
-            var graph = CreateInstance<ProjectTaskEntry>();
-            graph.Task.Current = graph.Task.Search<PMTask.taskID>(currentTaskID);
-            throw new PXRedirectRequiredException(graph, true, Messages.ViewTask) { Mode = PXBaseRedirectException.WindowMode.NewWindow };
-        }
+            var destReassignments = new PXSelect<UsrPMCostReassignmentDestination, 
+                                           Where<UsrPMCostReassignmentDestination.taskID, Equal<Required<UsrPMCostReassignmentDestination.taskID>>, 
+                                             And<UsrPMCostReassignmentDestination.pMReassignmentID, NotEqual<Required<UsrPMCostReassignmentDestination.pMReassignmentID>>>>>(this);
 
-        private void SetParentID<T>(PXRowPersistingEventArgs e) where T : IUsrPMCostReassignmentProjectAndTask
-        {
-            var row = (T)e.Row;
-            if (row != null && PMCostReassignment.Current != null)
-            {
-                if (!row.PMReassignmentID.Equals(PMCostReassignment.Current.PMReassignmentID))
-                {
-                    row.PMReassignmentID = PMCostReassignment.Current.PMReassignmentID;
-                }
-            }            
-        }        
+            PMTask taskRow = PMTaskSelect.Search<PMTask.taskID>(taskID);
 
-        private void VerifyingPMTaskUseInOtherReassignments(IUsrPMCostReassignmentProjectAndTask row)
-        {
-            var sourceReassignments = new PXSelect<UsrPMCostReassignmentSource, Where<UsrPMCostReassignmentSource.taskID, Equal<Required<UsrPMCostReassignmentSource.taskID>>>>(this);
-            var destReassignments = new PXSelect<UsrPMCostReassignmentDestination, Where<UsrPMCostReassignmentDestination.taskID, Equal<Required<UsrPMCostReassignmentDestination.taskID>>>>(this);
-            if (row != null)
-            {
-                PMTask taskRow = PMTaskSelect.Search<PMTask.taskID>(row.TaskID);
-                var sources = sourceReassignments.Select(row.TaskID).Select(i => ((UsrPMCostReassignmentSource)i).PMReassignmentID).Where(i => i != row.PMReassignmentID).ToList();
-                var dests = destReassignments.Select(row.TaskID).Select(i => ((UsrPMCostReassignmentDestination)i).PMReassignmentID).Where(i => i != row.PMReassignmentID).ToList();
+                // Get source or destination tasks. If found - throw exception. .ToArray needed for avoid multiply enumeration of IEnumerable
+                var sources = sourceReassignments.Select(taskID, pmReassignmentID)
+                                                 .Cast<UsrPMCostReassignmentSource>()
+                                                 .Select(i => i.PMReassignmentID)
+                                                 .ToArray();
+
+                var dests = destReassignments.Select(taskID, pmReassignmentID)
+                                             .Cast<UsrPMCostReassignmentDestination>()
+                                             .Select(i => i.PMReassignmentID)
+                                             .ToArray();
+
                 if (sources.Any() || dests.Any())
                 {
                     var listIDs = new List<string>();
@@ -553,30 +493,23 @@ namespace ProjectCostReallocation
                     throw new PXSetPropertyException(string.Format(PMCostReassignmentMessages.PROJECT_TASK_ALREADY_USED, taskRow.TaskCD, string.Join(",", listIDs)), PXErrorLevel.Warning);
 
                 }
+        }
+
+        private static void VerifyingReassignmentValue1MoreThanZero(PXFieldVerifyingEventArgs e)
+        {
+            var reassignmentValue1 = e.NewValue as decimal?;
+            if (reassignmentValue1.GetValueOrDefault() < 0)
+            {
+                throw new PXSetPropertyException(PMCostReassignmentMessages.REASSIGNMENT_VALUE_ONE_CANNOT_BE_NEGATIVE, PXErrorLevel.Warning);
             }
         }
 
-        private static void VerifyingSquareFootageMoreThanZero(PXFieldVerifyingEventArgs e)
+        private static void VerifyingReassignmentValue2MoreThanZero(PXFieldVerifyingEventArgs e)
         {
-            var row = e.Row as UsrPMCostReassignmentDestination;
-            var square = e.NewValue as decimal?;
-            if (square.GetValueOrDefault() < 0)
+            var reassignmentValue2 = e.NewValue as int?;
+            if (reassignmentValue2.GetValueOrDefault() < 0)
             {
-                e.Cancel = true;
-                e.NewValue = row?.ReassignmentValue1;
-                throw new PXSetPropertyException(PMCostReassignmentMessages.SQUARE_FOOTAGE_VALUE_CANNOT_BE_NEGATIVE, PXErrorLevel.Warning);
-            }
-        }
-
-        private static void VerifyingNumberOfUnitsMoreThanZero(PXFieldVerifyingEventArgs e)
-        {
-            var row = e.Row as UsrPMCostReassignmentDestination;
-            var numberOfUnits = e.NewValue as int?;
-            if (numberOfUnits.GetValueOrDefault() < 0)
-            {
-                e.Cancel = true;
-                e.NewValue = row?.ReassignmentValue2;
-                throw new PXSetPropertyException(PMCostReassignmentMessages.UNIT_COUNT_VALUE_CANNOT_BE_NEGATIVE, PXErrorLevel.Warning);
+                throw new PXSetPropertyException(PMCostReassignmentMessages.REASSIGNMENT_VALUE_TWO_CANNOT_BE_NEGATIVE, PXErrorLevel.Warning);
             }
         }
 

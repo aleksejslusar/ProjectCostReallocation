@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using ProjectCostReallocation.ProjectCostReallocation.Helpers;
 using PX.Data;
 using PX.Objects.PM;
 
@@ -189,11 +190,6 @@ namespace ProjectCostReallocation
             }
         }
 
-        protected virtual void PMCostReassignmentFilter_RowSelected(PXCache sender, PXRowSelectedEventArgs e)
-        {
-
-        }
-
         protected virtual void PMCostReassignmentFilter_FromProjectID_FieldUpdated(PXCache sender, PXFieldUpdatedEventArgs e)
         {
             var row = (PMCostReassignmentFilter) e.Row;
@@ -298,7 +294,7 @@ namespace ProjectCostReallocation
             if (Items.Current != null)
             {
                 var currentProjectID = Items.Current.SourceProjectID;
-                ViewProjectCommon(currentProjectID);
+                PMCostReassignmentViewer.ViewProjectCommon(currentProjectID);
             }
 
             return adapter.Get();
@@ -312,7 +308,7 @@ namespace ProjectCostReallocation
             if (Items.Current != null)
             {
                 var currentTaskID = Items.Current.SourceTaskID;
-                ViewTaskCommon(currentTaskID);
+                PMCostReassignmentViewer.ViewTaskCommon(currentTaskID);
             }
 
             return adapter.Get();
@@ -326,7 +322,7 @@ namespace ProjectCostReallocation
             if (Items.Current != null)
             {
                 var currentProjectID = Items.Current.DestinationProjectID;
-                ViewProjectCommon(currentProjectID);
+                PMCostReassignmentViewer.ViewProjectCommon(currentProjectID);
             }
 
             return adapter.Get();
@@ -340,7 +336,7 @@ namespace ProjectCostReallocation
             if (Items.Current != null)
             {
                 var currentTaskID = Items.Current.DestinationTaskID;
-                ViewTaskCommon(currentTaskID);
+                PMCostReassignmentViewer.ViewTaskCommon(currentTaskID);
             }
 
             return adapter.Get();
@@ -362,27 +358,6 @@ namespace ProjectCostReallocation
 
             return adapter.Get();
         }
-        #endregion
-
-        #region Private
-
-        private static void ViewProjectCommon(int? currentProjectID)
-        {
-            var graph = CreateInstance<ProjectEntry>();
-            graph.Project.Current = graph.Project.Search<PMProject.contractID>(currentProjectID);
-            if (graph.Project.Current != null)
-            {
-                throw new PXRedirectRequiredException(graph, true, Messages.ViewProject) { Mode = PXBaseRedirectException.WindowMode.NewWindow };
-            }
-        }
-
-        private static void ViewTaskCommon(int? currentTaskID)
-        {
-            var graph = CreateInstance<ProjectTaskEntry>();
-            graph.Task.Current = graph.Task.Search<PMTask.taskID>(currentTaskID);
-            throw new PXRedirectRequiredException(graph, true, Messages.ViewTask) { Mode = PXBaseRedirectException.WindowMode.NewWindow };
-        }
-
-        #endregion      
+        #endregion     
     }
 }

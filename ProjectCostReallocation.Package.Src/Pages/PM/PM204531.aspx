@@ -84,7 +84,7 @@
             </px:PXTabItem>
             <px:PXTabItem Text="Reassignment History">
                 <Template>
-                    <px:PXGrid ID="PXGridReassignmentHistory" runat="server" DataSourceID="ds" TabIndex="31100" SkinID="DetailsInTab" AllowSearch="True" Style="z-index: 100" Width="100%" Height="100%" Caption="Reassignment History" CaptionVisible="False">
+                    <px:PXGrid ID="PXGridReassignmentHistory" runat="server" DataSourceID="ds" TabIndex="31100" SkinID="Inquire" AllowSearch="True" Style="z-index: 100" Width="100%" Height="100%" Caption="Reassignment History" CaptionVisible="False">
                         <Levels>
                             <px:PXGridLevel DataKeyNames="PMTran__BranchID" DataMember="PMCostReassignmentHistory">
                                 <Columns>

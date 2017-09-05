@@ -51,6 +51,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ProjectCostReallocation\Helpers\CachedValue.cs" />
+    <Compile Include="ProjectCostReallocation\Helpers\PMCostReassignmentViewer.cs" />
     <Compile Include="ProjectCostReallocation\Helpers\ReassigmentValue.cs" />
     <Compile Include="ProjectCostReallocation\Helpers\ReassignmentChain\AddPMRegisterHandler.cs" />
     <Compile Include="ProjectCostReallocation\Helpers\ReassignmentChain\AddPMTransHandler.cs" />

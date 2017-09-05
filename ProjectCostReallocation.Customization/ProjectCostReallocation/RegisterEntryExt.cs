@@ -11,6 +11,16 @@ namespace ProjectCostReallocation
 
     public class RegisterEntryExt : PXGraphExtension<RegisterEntry>
     {
+        public PXSelect<UsrPMCostReassignmentRunHistory, Where<UsrPMCostReassignmentRunHistory.pMReassignmentID, Equal<Required<UsrPMCostReassignmentRunHistory.pMReassignmentID>>,
+                                                                And<UsrPMCostReassignmentRunHistory.revID, Equal<Required<UsrPMCostReassignmentRunHistory.revID>>,
+                                                                And2<Where<UsrPMCostReassignmentRunHistory.sourceTranID, Equal<Required<UsrPMCostReassignmentRunHistory.sourceTranID>>>,
+                                                                  Or<UsrPMCostReassignmentRunHistory.destinationTranID, Equal<Required<UsrPMCostReassignmentRunHistory.destinationTranID>>>>>>> UsrPMCostReassignmentRunHistorySelect;
+        public PXSelect<UsrPMCostReassignment, Where<UsrPMCostReassignment.pMReassignmentID, Equal<Required<UsrPMCostReassignment.pMReassignmentID>>>> UsrPMCostReassignmentSelect;
+        public PXSelect<UsrPMCostReassignmentSourceTran, Where<UsrPMCostReassignmentSourceTran.tranID, Equal<Required<UsrPMCostReassignmentSourceTran.tranID>>>> UsrPMCostReassignmentSourceTranSelect;
+
+        public PXSelect<UsrPMCostReassignmentHistory, Where<UsrPMCostReassignmentHistory.tranID, Equal<Required<UsrPMCostReassignmentHistory.tranID>>>> UsrPMCostReassignmentHistorySelect;
+        public PXSelect<UsrPMCostReassignmentPercentage, Where<UsrPMCostReassignmentPercentage.tranID, Equal<Required<UsrPMCostReassignmentPercentage.tranID>>>> UsrPMCostReassignmentPercentageSelect;
+        public PXSelect<PMTran, Where<PMTran.tranID, Equal<Required<PMTran.tranID>>>> SourceTranSelect; 
 
         #region Actions
 
@@ -20,18 +30,38 @@ namespace ProjectCostReallocation
         [PXUIField(DisplayName = "Reverse Reassignment")]
         protected void ReverseReassignment()
         {
-            //Check for reversed earlier
-            PMRegister reversalExist = PXSelect<PMRegister, 
-                                         Where<PMRegister.module, Equal<Current<PMRegister.module>>, 
-                                            And<PMRegister.origRefNbr, Equal<Current<PMRegister.refNbr>>, 
-                                            And<PMRegister.origDocNbr, Equal<Current<PMRegister.refNbr>>>>>>.Select(Base);
-            if (reversalExist != null)
+            PXLongOperation.StartOperation(Base, () =>
             {
-                throw new PXException(string.Format(PMCostReassignmentMessages.REASSIGNMENT_REVERSE_ERROR, reversalExist.RefNbr));
-            }
-            //Revert
-            PerformReverseReassignment();
+                //Check for reversed earlier
+                PMRegister reversalExist = PXSelect<PMRegister,
+                                             Where<PMRegister.module, Equal<Current<PMRegister.module>>,
+                                                And<PMRegister.origRefNbr, Equal<Current<PMRegister.refNbr>>,
+                                                And<PMRegister.origDocNbr, Equal<Current<PMRegister.refNbr>>>>>>.Select(Base);
+                if (reversalExist != null)
+                {
+                    throw new PXException(string.Format(PMCostReassignmentMessages.REASSIGNMENT_REVERSE_ERROR, reversalExist.RefNbr));
+                }
+                //Revert
+                var revertedEntry = PerformReverseReassignment();
 
+                //Release
+                revertedEntry.Document.Current = PXSelect<PMRegister, 
+                                                    Where<PMRegister.module, Equal<Current<PMRegister.module>>, 
+                                                      And<PMRegister.origRefNbr, Equal<Current<PMRegister.refNbr>>>>>.Select(Base);
+                //Release
+                if (revertedEntry.Document.Current.Released != true)
+                {
+                    PXLongOperation.StartOperation(revertedEntry.UID, () =>
+                    {                        
+                        revertedEntry.ReleaseDocument(revertedEntry.Document.Current);                                              
+                    });
+
+                    PXLongOperation.WaitCompletion(revertedEntry.UID);
+                }
+
+                //Redirect
+                throw new PXRedirectRequiredException(revertedEntry, "Open Reversal");
+            });
         }
 
         #endregion
@@ -43,18 +73,13 @@ namespace ProjectCostReallocation
             var row = e.Row as PMRegister;
             if (row != null)
             {
-                var isCanBeReverted = (row.GetExtension<PMRegisterExt>().UsrIsReassignment.GetValueOrDefault() && (row.OrigDocType != PMOrigDocType.Reversal) && row.Released == true);
+                var usrIsReassignment = PXCache<PMRegister>.GetExtension<PMRegisterExt>(row).UsrIsReassignment.GetValueOrDefault();
+                var isCanBeReverted = (usrIsReassignment && (row.OrigDocType != PMOrigDocType.Reversal) && row.Released == true);
                 reverseReassignment.SetEnabled(isCanBeReverted);
                 Base.Document.Cache.AllowUpdate = row.Released != true && row.Module == BatchModule.PM;
                 Base.Document.Cache.AllowDelete = row.Released != true && row.Module == BatchModule.PM;
-                //Add caches
-                Base.Views.Caches.Add(typeof(UsrPMCostReassignmentSourceTran));
-                Base.Views.Caches.Add(typeof(UsrPMCostReassignmentHistory));
-                Base.Views.Caches.Add(typeof(UsrPMCostReassignmentPercentage));
-                Base.Views.Caches.Add(typeof(UsrPMCostReassignmentRunHistory));
-                Base.Views.Caches.Add(typeof(UsrPMCostReassignmentHistory));
 
-                var isCanEditTransactions = !row.GetExtension<PMRegisterExt>().UsrIsReassignment.GetValueOrDefault();
+                var isCanEditTransactions = !usrIsReassignment;
                 Base.Transactions.Cache.AllowDelete = isCanEditTransactions;
                 Base.Transactions.Cache.AllowUpdate = isCanEditTransactions;
                 Base.Transactions.Cache.AllowInsert = isCanEditTransactions;                
@@ -68,22 +93,13 @@ namespace ProjectCostReallocation
             DeleteRelatedRecords(tranRows);
         }
 
-        protected virtual void PMRegister_RowPersisted(PXCache cache, PXRowPersistedEventArgs e)
-        {
-            if (e.Operation == PXDBOperation.Delete)
-            {
-                Base.Caches<UsrPMCostReassignmentSourceTran>().Clear();
-                Base.Caches<UsrPMCostReassignmentPercentage>().Clear();
-            }
-        }
-
         #endregion
 
         #region Private
-        private void PerformReverseReassignment()
+        private RegisterEntry PerformReverseReassignment()
         {
             var current = Base.Document.Current;
-            var newTrans = new Dictionary<PMTran, PMTran>();            
+            var newTrans = new Dictionary<PMTran, PMTran>();
             if (current != null)
             {
                 RegisterEntry target;
@@ -93,18 +109,18 @@ namespace ProjectCostReallocation
                     {
                         target = PXGraph.CreateInstance<RegisterEntry>();
                         //Create PMRegister row
-                        var doc = (PMRegister)target.Document.Cache.Insert();
+                        var doc = target.Document.Insert();
                         doc.Module = BatchModule.PM;
                         doc.Description = current.Description + " " + Messages.Reversal;
                         doc.OrigDocType = PMOrigDocType.Reversal;
                         doc.OrigDocNbr = current.RefNbr;
                         doc.OrigRefNbr = current.RefNbr;
-                        doc.GetExtension<PMRegisterExt>().UsrIsReassignment = true;                                               
+                        PXCache<PMRegister>.GetExtension<PMRegisterExt>(doc).UsrIsReassignment = true;                                               
 
                         //Create transaction row
                         foreach (PMTran pmTran in Base.Transactions.Select())
                         {                                                 
-                            var tran = (PMTran)target.Transactions.Cache.Insert();
+                            var tran = target.Transactions.Insert();
                             tran.RefNbr = doc.RefNbr;
                             tran.BranchID = pmTran.BranchID;
                             tran.ProjectID = pmTran.ProjectID;
@@ -136,7 +152,7 @@ namespace ProjectCostReallocation
                             tran.EndDate = tran.Date;
                             tran.StartDate = tran.Date;
                             tran.OrigTranID = pmTran.TranID;
-                            target.Transactions.Cache.SetValueExt<PMTranExt.usrReassigned>(tran, true);
+                            target.Transactions.SetValueExt<PMTranExt.usrReassigned>(tran, true);
 
                             //Release
 
@@ -147,97 +163,79 @@ namespace ProjectCostReallocation
                             newTrans.Add(pmTran, tran);
                         }
 
-                        target.Save.Press();
+                        //Write history
+                        foreach (var tran in newTrans)
+                        {
+                            WriteUsrPMCostReassignmentHistory(tran.Key, tran.Value);
+                        }
+
                         ts.Complete();
                     }
                 }
-                
-                //Write history
-                foreach (var tran in newTrans)
-                {
-                    WriteUsrPMCostReassignmentHistory(tran.Key, tran.Value);
-                }
 
-                target.Save.Press();
-
-                target.Document.Current = PXSelect<PMRegister, Where<PMRegister.module, Equal<Current<PMRegister.module>>, And<PMRegister.origRefNbr, Equal<Current<PMRegister.refNbr>>>>>.Select(Base);
-                
-                //Release
-                PXLongOperation.StartOperation(Base, () =>
-                {
-                    if (target.Document.Current.Released != true)
-                    {
-                        Base.ReleaseDocument(target.Document.Current);
-                        target.Save.Press();
-                    }
-
-                });
-
-                PXAutomation.CompleteAction(Base);
-                PXLongOperation.WaitCompletion(Base.UID);
-                PXLongOperation.ClearStatus(Base.UID);
-
-                //Wait before redirect
-                System.Threading.Thread.Sleep(3000);
-                throw new PXRedirectRequiredException(target, "Open Reversal");
+                target.Actions.PressSave();
+                return target;
             }
+
+            throw new PXException("Error during reverse reassignment operation");
         }
 
         private void DeleteRelatedRecords(IEnumerable<PMTran> tranRows)
         {
-            var usrReassignmentHistoryView = new PXSelect<UsrPMCostReassignmentHistory, Where<UsrPMCostReassignmentHistory.tranID, Equal<Required<UsrPMCostReassignmentHistory.tranID>>>>(Base);
-            var usrReassignmentSourceTranView = new PXSelect<UsrPMCostReassignmentSourceTran, Where<UsrPMCostReassignmentSourceTran.tranID, Equal<Required<UsrPMCostReassignmentSourceTran.tranID>>>>(Base);
-            var usrPMCostReassignmentPercentageView = new PXSelect<UsrPMCostReassignmentPercentage, Where<UsrPMCostReassignmentPercentage.tranID, Equal<Required<UsrPMCostReassignmentPercentage.tranID>>>>(Base);
-
-            foreach (var tran in tranRows)
+            using (new PXConnectionScope())
             {
-                UsrPMCostReassignmentSourceTran reassignmentSourceTran = usrReassignmentSourceTranView.Select(tran.TranID).FirstOrDefault();
-                if (reassignmentSourceTran == null) continue;
-
-                using (new PXConnectionScope())
+                using (var ts = new PXTransactionScope())
                 {
-                    using (var ts = new PXTransactionScope())
+                    foreach (var tran in tranRows)
                     {
+                        UsrPMCostReassignmentSourceTran reassignmentSourceTran = UsrPMCostReassignmentSourceTranSelect.Select(tran.TranID).FirstOrDefault();
+                        if (reassignmentSourceTran == null) continue;
+
                         //Make source transaction available for reassignment again
-                        PMTran sourceTran = PXSelect<PMTran, Where<PMTran.tranID, Equal<Required<PMTran.tranID>>>>.Select(Base, reassignmentSourceTran.SourceTranID);
+                        var sourceTran = SourceTranSelect.SelectSingle(reassignmentSourceTran.SourceTranID);
+                        
                         if (sourceTran != null)
                         {
-                            sourceTran.GetExtension<PMTranExt>().UsrReassigned = false;
-                            Base.Caches<PMTran>().Update(sourceTran);
-                        }
-
-                        //Delete UsrPMCostReassignmentHistory
-                        foreach (var usrReassignmentHistory in usrReassignmentHistoryView.Select(reassignmentSourceTran.TranID))
-                        {
-                            Base.Caches<UsrPMCostReassignmentHistory>().Delete((UsrPMCostReassignmentHistory)usrReassignmentHistory);
+                            if (PXCache<PMTran>.GetExtension<PMTranExt>(sourceTran).UsrReassigned.GetValueOrDefault())
+                            {
+                                PXCache<PMTran>.GetExtension<PMTranExt>(sourceTran).UsrReassigned = false;
+                                Base.Caches<PMTran>().Update(sourceTran);
+                            }
                         }
 
                         //Delete UsrPMCostReassignmentPercentage
-                        foreach (var reassignmentPercentage in usrPMCostReassignmentPercentageView.Select(reassignmentSourceTran.TranID))
+                        foreach (var reassignmentPercentage in UsrPMCostReassignmentPercentageSelect.Select(reassignmentSourceTran.TranID))
                         {
-                            Base.Caches<UsrPMCostReassignmentPercentage>().Delete((UsrPMCostReassignmentPercentage)reassignmentPercentage);
+                            UsrPMCostReassignmentPercentageSelect.Delete(reassignmentPercentage);
+                        }
+
+                        //Delete UsrPMCostReassignmentHistory
+                        foreach (var usrReassignmentHistory in UsrPMCostReassignmentHistorySelect.Select(reassignmentSourceTran.TranID))
+                        {
+                            UsrPMCostReassignmentHistorySelect.Delete(usrReassignmentHistory);
                         }
 
                         //Delete UsrPMCostReassignmentRunHistory
                         DeleteRelatedReassignmentRunHistory(tran);
 
                         //Delete UsrPMCostReassignmentSourceTran
-                        Base.Caches<UsrPMCostReassignmentSourceTran>().Delete(reassignmentSourceTran);
-
-                        ts.Complete();
+                        UsrPMCostReassignmentSourceTranSelect.Delete(reassignmentSourceTran);
                     }
+
+                    ts.Complete();
                 }
             }
+
+            //Save changes to DB
+            Base.Actions.PressSave();
         }
 
         private UsrPMCostReassignment GetReassignmentByTranID(PMTran tran)
         {
-            var reassigmentView = new PXSelect<UsrPMCostReassignment, Where<UsrPMCostReassignment.pMReassignmentID, Equal<Required<UsrPMCostReassignment.pMReassignmentID>>>>(Base);
-            var usrReassignmentSourceTranView = new PXSelect<UsrPMCostReassignmentSourceTran, Where<UsrPMCostReassignmentSourceTran.tranID, Equal<Required<UsrPMCostReassignmentSourceTran.tranID>>>>(Base);
-            UsrPMCostReassignmentSourceTran reassignmentSourceTran = usrReassignmentSourceTranView.Select(tran.TranID).FirstOrDefault();
+            UsrPMCostReassignmentSourceTran reassignmentSourceTran = UsrPMCostReassignmentSourceTranSelect.Select(tran.TranID).FirstOrDefault();
             if (reassignmentSourceTran != null)
             {
-                UsrPMCostReassignment reasignment = reassigmentView.Select(reassignmentSourceTran.PMReassignmentID);
+                UsrPMCostReassignment reasignment = UsrPMCostReassignmentSelect.Select(reassignmentSourceTran.PMReassignmentID);
                 return reasignment;
             }
             return null;
@@ -245,20 +243,15 @@ namespace ProjectCostReallocation
 
         private void DeleteRelatedReassignmentRunHistory(PMTran tran)
         {
-            var usrPMCostReassignmentRunHistoryView = new PXSelect<UsrPMCostReassignmentRunHistory, Where<UsrPMCostReassignmentRunHistory.pMReassignmentID, Equal<Required<UsrPMCostReassignmentRunHistory.pMReassignmentID>>,
-                                                                                                      And<UsrPMCostReassignmentRunHistory.revID, Equal<Required<UsrPMCostReassignmentRunHistory.revID>>,
-                                                                                                      And2<Where<UsrPMCostReassignmentRunHistory.sourceTranID, Equal<Required<UsrPMCostReassignmentRunHistory.sourceTranID>>>,
-                                                                                                             Or<UsrPMCostReassignmentRunHistory.destinationTranID, Equal<Required<UsrPMCostReassignmentRunHistory.destinationTranID>>>>>>>(Base);
             //Get reassignmemt
             var reassignmemt = GetReassignmentByTranID(tran);
             if (reassignmemt != null)
             {
                 //Delete UsrPMCostReassignmentRunHistory
-                var reassignmentRunHistory = usrPMCostReassignmentRunHistoryView.Select(reassignmemt.PMReassignmentID, reassignmemt.RevID, tran.TranID);
+                var reassignmentRunHistory = UsrPMCostReassignmentRunHistorySelect.Select(reassignmemt.PMReassignmentID, reassignmemt.RevID, tran.TranID);
                 if (reassignmentRunHistory != null)
                 {
-                    Base.Caches<UsrPMCostReassignmentRunHistory>().Delete((UsrPMCostReassignmentRunHistory)reassignmentRunHistory);
-                    Base.Caches<UsrPMCostReassignmentRunHistory>().Persist(PXDBOperation.Delete);
+                    UsrPMCostReassignmentRunHistorySelect.Delete(reassignmentRunHistory);                    
                 }
             }
         }
@@ -269,13 +262,11 @@ namespace ProjectCostReallocation
             var reassignmemt = GetReassignmentByTranID(currentTran);
             if (reassignmemt != null)
             {
-                var cacheRow = Base.Caches<UsrPMCostReassignmentHistory>().Insert();
-                var historyRow = cacheRow  as UsrPMCostReassignmentHistory;
+                var historyRow = UsrPMCostReassignmentHistorySelect.Insert();
                 if (historyRow != null)
                 {
                     historyRow.PMReassignmentID = reassignmemt.PMReassignmentID;
-                    historyRow.TranID = newTran.TranID;
-                    Base.Caches<UsrPMCostReassignmentHistory>().Persist(PXDBOperation.Insert);
+                    historyRow.TranID = newTran.TranID;                    
                 }
             }
         }
