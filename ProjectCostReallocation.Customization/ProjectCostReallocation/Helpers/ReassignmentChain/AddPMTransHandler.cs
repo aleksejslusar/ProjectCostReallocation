@@ -22,12 +22,8 @@ namespace ProjectCostReallocation
 
         protected override void HandlerRequest()
         {
-            var reassignmentSource =
-                ReassignmentEntry.PMCostReassignmentSource.Search<UsrPMCostReassignmentSource.lineID>(
-                    Entity.SourceLineID);
-            var reassigmentDestination =
-                ReassignmentEntry.PMCostReassignmentDestination.Search<UsrPMCostReassignmentDestination.lineID>(
-                    Entity.DestinaitonLineID);
+            var reassignmentSource = ReassignmentEntry.PMCostReassignmentSource.Search<UsrPMCostReassignmentSource.lineID>(Entity.SourceLineID);
+            var reassigmentDestination = ReassignmentEntry.PMCostReassignmentDestination.Search<UsrPMCostReassignmentDestination.lineID>(Entity.DestinaitonLineID);
             var sourcePMTrans = GetSourсeTransaction(reassignmentSource);
 
             //Validate if no any source transactions to reassign
@@ -46,11 +42,9 @@ namespace ProjectCostReallocation
 
                 foreach (var sourcePMTran in sourcePMTrans)
                 {
-                    var processedDestTaskIds =
-                        ReassignmentEntry.ProcessedTransactions.Select(sourcePMTran.TranID,
-                            currentReassignment.PMReassignmentID, currentReassignment.RevID)
-                            .Select(i => i.GetItem<UsrPMCostReassignmentRunHistory>().DestinationTaskID)
-                            .ToList();
+                    var processedDestTaskIds = ReassignmentEntry.ProcessedTransactions.Select(sourcePMTran.TranID, currentReassignment.PMReassignmentID, currentReassignment.RevID)
+                                                                                      .Select(i => i.GetItem<UsrPMCostReassignmentRunHistory>().DestinationTaskID)
+                                                                                      .ToList();
 
                     if (!processedDestTaskIds.Any() || !processedDestTaskIds.Contains(Entity.DestinationTaskID))
                     {
@@ -122,7 +116,11 @@ namespace ProjectCostReallocation
                 pmTran.WhereAnd<Where<PMTran.accountGroupID, Equal<Required<PMTran.accountGroupID>>>>();
             }
 
-            return pmTran.Select(reassignmentSource.ProjectID, reassignmentSource.TaskID, reassignmentSource.AccountGroupFrom, reassignmentSource.AccountGroupTo)
+
+            var accountGroupFrom = Math.Min(reassignmentSource.AccountGroupFrom.GetValueOrDefault(), reassignmentSource.AccountGroupTo.GetValueOrDefault());
+            var accountGroupTo = Math.Max(reassignmentSource.AccountGroupFrom.GetValueOrDefault(), reassignmentSource.AccountGroupTo.GetValueOrDefault());
+
+            return pmTran.Select(reassignmentSource.ProjectID, reassignmentSource.TaskID, accountGroupFrom, accountGroupTo)
                          .Select(e => (PMTran)e)
                          .ToList();
         }

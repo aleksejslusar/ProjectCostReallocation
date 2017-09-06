@@ -48,7 +48,7 @@ namespace ProjectCostReallocation
                 revertedEntry.Document.Current = PXSelect<PMRegister, 
                                                     Where<PMRegister.module, Equal<Current<PMRegister.module>>, 
                                                       And<PMRegister.origRefNbr, Equal<Current<PMRegister.refNbr>>>>>.Select(Base);
-                //Release
+                               
                 if (revertedEntry.Document.Current.Released != true)
                 {
                     PXLongOperation.StartOperation(revertedEntry.UID, () =>
@@ -98,9 +98,10 @@ namespace ProjectCostReallocation
         #region Private
         private RegisterEntry PerformReverseReassignment()
         {
-            var current = Base.Document.Current;
+            var register = Base.Document.Current;
+            var transactions = Base.Transactions.Select();
             var newTrans = new Dictionary<PMTran, PMTran>();
-            if (current != null)
+            if (register != null)
             {
                 RegisterEntry target;
                 using (new PXConnectionScope())
@@ -108,17 +109,20 @@ namespace ProjectCostReallocation
                     using (var ts = new PXTransactionScope())
                     {
                         target = PXGraph.CreateInstance<RegisterEntry>();
+                        //Get target extention context
+                        var targetExt = target.GetExtension<RegisterEntryExt>();
+
                         //Create PMRegister row
                         var doc = target.Document.Insert();
                         doc.Module = BatchModule.PM;
-                        doc.Description = current.Description + " " + Messages.Reversal;
+                        doc.Description = register.Description + " " + Messages.Reversal;
                         doc.OrigDocType = PMOrigDocType.Reversal;
-                        doc.OrigDocNbr = current.RefNbr;
-                        doc.OrigRefNbr = current.RefNbr;
+                        doc.OrigDocNbr = register.RefNbr;
+                        doc.OrigRefNbr = register.RefNbr;
                         PXCache<PMRegister>.GetExtension<PMRegisterExt>(doc).UsrIsReassignment = true;                                               
 
                         //Create transaction row
-                        foreach (PMTran pmTran in Base.Transactions.Select())
+                        foreach (PMTran pmTran in transactions)
                         {                                                 
                             var tran = target.Transactions.Insert();
                             tran.RefNbr = doc.RefNbr;
@@ -153,21 +157,27 @@ namespace ProjectCostReallocation
                             tran.StartDate = tran.Date;
                             tran.OrigTranID = pmTran.TranID;
                             target.Transactions.SetValueExt<PMTranExt.usrReassigned>(tran, true);
-
-                            //Release
-
+                            
                             //Delete UsrPMCostReassignmentRunHistory
-                            DeleteRelatedReassignmentRunHistory(pmTran);
+                            targetExt.DeleteRelatedReassignmentRunHistory(pmTran);
 
                             //Save new tran to list
                             newTrans.Add(pmTran, tran);
                         }
 
                         //Write history
+                        target.Actions.PressSave();
                         foreach (var tran in newTrans)
                         {
-                            WriteUsrPMCostReassignmentHistory(tran.Key, tran.Value);
+                            targetExt.WriteUsrPMCostReassignmentHistory(tran.Key, tran.Value);
                         }
+
+                        //Reset tokens
+                        if (newTrans.Any())
+                        {
+                            targetExt.ResetSourceTranReassignmentToken(newTrans.First().Key.TranID);
+                        }
+                        
 
                         ts.Complete();
                     }
@@ -199,7 +209,7 @@ namespace ProjectCostReallocation
                             if (PXCache<PMTran>.GetExtension<PMTranExt>(sourceTran).UsrReassigned.GetValueOrDefault())
                             {
                                 PXCache<PMTran>.GetExtension<PMTranExt>(sourceTran).UsrReassigned = false;
-                                Base.Caches<PMTran>().Update(sourceTran);
+                                SourceTranSelect.Update(sourceTran);
                             }
                         }
 
@@ -267,6 +277,24 @@ namespace ProjectCostReallocation
                 {
                     historyRow.PMReassignmentID = reassignmemt.PMReassignmentID;
                     historyRow.TranID = newTran.TranID;                    
+                }
+            }
+        }
+
+        private void ResetSourceTranReassignmentToken(long? tranId)
+        {
+            UsrPMCostReassignmentSourceTran reassignmentSourceTran = UsrPMCostReassignmentSourceTranSelect.Select(tranId).FirstOrDefault();
+            if (reassignmentSourceTran == null) return;
+
+            //Make source transaction available for reassignment again
+            var sourceTran = SourceTranSelect.SelectSingle(reassignmentSourceTran.SourceTranID);
+
+            if (sourceTran != null)
+            {
+                if (PXCache<PMTran>.GetExtension<PMTranExt>(sourceTran).UsrReassigned.GetValueOrDefault())
+                {
+                    PXCache<PMTran>.GetExtension<PMTranExt>(sourceTran).UsrReassigned = false;
+                    SourceTranSelect.Update(sourceTran);
                 }
             }
         }
