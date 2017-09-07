@@ -174,10 +174,13 @@ namespace ProjectCostReallocation
 
                         //Reset tokens
                         if (newTrans.Any())
-                        {
-                            targetExt.ResetSourceTranReassignmentToken(newTrans.First().Key.TranID);
+                        {                            
+                            UsrPMCostReassignmentSourceTran reassignmentSourceTran = UsrPMCostReassignmentSourceTranSelect.Select(newTrans.First().Key.TranID).FirstOrDefault();
+                            if (reassignmentSourceTran != null)
+                            {
+                                targetExt.ResetSourceTranReassignmentToken(reassignmentSourceTran.SourceTranID);
+                            }                            
                         }
-                        
 
                         ts.Complete();
                     }
@@ -202,17 +205,8 @@ namespace ProjectCostReallocation
                         if (reassignmentSourceTran == null) continue;
 
                         //Make source transaction available for reassignment again
-                        var sourceTran = SourceTranSelect.SelectSingle(reassignmentSourceTran.SourceTranID);
+                        ResetSourceTranReassignmentToken(reassignmentSourceTran.SourceTranID);
                         
-                        if (sourceTran != null)
-                        {
-                            if (PXCache<PMTran>.GetExtension<PMTranExt>(sourceTran).UsrReassigned.GetValueOrDefault())
-                            {
-                                PXCache<PMTran>.GetExtension<PMTranExt>(sourceTran).UsrReassigned = false;
-                                SourceTranSelect.Update(sourceTran);
-                            }
-                        }
-
                         //Delete UsrPMCostReassignmentPercentage
                         foreach (var reassignmentPercentage in UsrPMCostReassignmentPercentageSelect.Select(reassignmentSourceTran.TranID))
                         {
@@ -281,14 +275,9 @@ namespace ProjectCostReallocation
             }
         }
 
-        private void ResetSourceTranReassignmentToken(long? tranId)
+        private void ResetSourceTranReassignmentToken(long? sourceTranID)
         {
-            UsrPMCostReassignmentSourceTran reassignmentSourceTran = UsrPMCostReassignmentSourceTranSelect.Select(tranId).FirstOrDefault();
-            if (reassignmentSourceTran == null) return;
-
-            //Make source transaction available for reassignment again
-            var sourceTran = SourceTranSelect.SelectSingle(reassignmentSourceTran.SourceTranID);
-
+            var sourceTran = SourceTranSelect.SelectSingle(sourceTranID);
             if (sourceTran != null)
             {
                 if (PXCache<PMTran>.GetExtension<PMTranExt>(sourceTran).UsrReassigned.GetValueOrDefault())
@@ -296,7 +285,7 @@ namespace ProjectCostReallocation
                     PXCache<PMTran>.GetExtension<PMTranExt>(sourceTran).UsrReassigned = false;
                     SourceTranSelect.Update(sourceTran);
                 }
-            }
+            }           
         }
 
         #endregion
