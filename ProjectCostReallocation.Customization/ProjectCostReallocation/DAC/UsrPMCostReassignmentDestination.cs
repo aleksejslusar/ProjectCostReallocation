@@ -1,5 +1,6 @@
 ﻿using System;
 using PX.Data;
+using PX.Objects.CS;
 using PX.Objects.PM;
 
 namespace ProjectCostReallocation
@@ -118,11 +119,15 @@ namespace ProjectCostReallocation
         #endregion
         #region ReassignmentValue1
         public abstract class reassignmentValue1 : IBqlField { }
-
+        private decimal? _reassignmentValue1;
         [PXDBDecimal]
         [PXUIField(DisplayName = "Square Footage", Enabled = false)]
         [PXDefault(TypeCode.Decimal, "0.00")]
-        public virtual decimal? ReassignmentValue1 { get; set; }
+//        [PXFormula(typeof(Switch<Case<Where<PMTask.taskID, Equal<taskID>, And<PMTask.status, NotEqual<ProjectTaskStatus.completed>>>, reassignmentValue1>, decimal0>), typeof(SumCalc<UsrPMCostReassignment.reassignmentValue1Total>))]
+        public virtual decimal? ReassignmentValue1 {
+            get { return _reassignmentValue1; } 
+            set { _reassignmentValue1 = value; }
+        }
         #endregion
         #region ReassignmentValue2
         public abstract class reassignmentValue2 : IBqlField { }
@@ -130,6 +135,7 @@ namespace ProjectCostReallocation
         [PXDBInt]
         [PXUIField(DisplayName = "Number of Units", Enabled = false)]
         [PXDefault(0)]
+//        [PXFormula(typeof(Switch<Case<Where<PMTask.taskID, Equal<Current<taskID>>, And<PMTask.status, NotEqual<ProjectTaskStatus.completed>>>, reassignmentValue2>, int0>),  typeof(SumCalc<UsrPMCostReassignment.reassignmentValue2Total>))]
         public virtual int? ReassignmentValue2 { get; set; }
         #endregion
 
