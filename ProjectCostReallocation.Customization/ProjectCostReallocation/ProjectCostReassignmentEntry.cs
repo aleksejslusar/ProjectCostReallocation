@@ -246,11 +246,7 @@ namespace ProjectCostReallocation
 
         protected virtual void UsrPMCostReassignment_RowSelecting(PXCache sender, PXRowSelectingEventArgs e)
         {
-            var row = e.Row as UsrPMCostReassignment;
-            if (row != null)
-            {
-                CalcutaleReassignmentValueTotalsOnSelecting(row);
-            }
+            CalcutaleReassignmentValueTotals();
         }
 
         protected virtual void UsrPMCostReassignment_RowSelected(PXCache sender, PXRowSelectedEventArgs e)
@@ -350,30 +346,17 @@ namespace ProjectCostReallocation
 
         protected virtual void UsrPMCostReassignmentDestination_RowInserted(PXCache sender, PXRowInsertedEventArgs e)
         {
-            var row = e.Row as UsrPMCostReassignmentDestination;
-            if (row != null)
-            {
-                CalcutaleReassignmentValueTotalsOnUpdated(row.TaskID, row.ReassignmentValue1, row.ReassignmentValue2, null, null);
-            }
+            CalcutaleReassignmentValueTotals();            
         }
 
         protected virtual void UsrPMCostReassignmentDestination_RowDeleted(PXCache sender, PXRowDeletedEventArgs e)
         {
-            var row = e.Row as UsrPMCostReassignmentDestination;
-            if (row != null)
-            {
-                CalcutaleReassignmentValueTotalsOnUpdated(row.TaskID, -row.ReassignmentValue1, -row.ReassignmentValue2, null, null);
-            }
+            CalcutaleReassignmentValueTotals();            
         }
 
         protected virtual void UsrPMCostReassignmentDestination_RowUpdated(PXCache sender, PXRowUpdatedEventArgs e)
         {
-            var row = e.Row as UsrPMCostReassignmentDestination;
-            var oldRow = e.OldRow as UsrPMCostReassignmentDestination;
-            if (row != null && oldRow != null)
-            {
-                CalcutaleReassignmentValueTotalsOnUpdated(row.TaskID, row.ReassignmentValue1, row.ReassignmentValue2, oldRow.ReassignmentValue1, oldRow.ReassignmentValue2);
-            }
+            CalcutaleReassignmentValueTotals();
         }
 
         protected virtual void UsrPMCostReassignmentDestination_ProjectID_FieldUpdated(PXCache sender, PXFieldUpdatedEventArgs e)
@@ -381,6 +364,16 @@ namespace ProjectCostReallocation
             var row = (UsrPMCostReassignmentDestination)e.Row;
             row.TaskID = null;
             row.ReassignmentSelection = ReassignmentSelectionAttribute.Values.UnitCount;
+            row.ReassignmentValue1 = 0;
+            row.ReassignmentValue2 = 0;
+        }
+
+        protected virtual void UsrPMCostReassignmentDestination_TaskID_FieldUpdated(PXCache sender, PXFieldUpdatedEventArgs e)
+        {
+            var row = (UsrPMCostReassignmentDestination)e.Row;            
+            row.ReassignmentSelection = ReassignmentSelectionAttribute.Values.UnitCount;
+            row.ReassignmentValue1 = 0;
+            row.ReassignmentValue2 = 0;
         }
 
         protected virtual void UsrPMCostReassignmentDestination_ReassignmentValue1_FieldVerifying(PXCache sender, PXFieldVerifyingEventArgs e)
@@ -468,39 +461,27 @@ namespace ProjectCostReallocation
 
         #region Private
 
-        private void CalcutaleReassignmentValueTotalsOnSelecting(UsrPMCostReassignment row)
-        {
-            if (!IsImport)
-            {
-                row.ReassignmentValue1Total = 0;
-                row.ReassignmentValue2Total = 0;
+        private void CalcutaleReassignmentValueTotals()
+        {           
+            var row = PMCostReassignment.Current;
+            if (row == null) return;
+            row.ReassignmentValue1Total = 0;
+            row.ReassignmentValue2Total = 0;
 
-                using (new PXConnectionScope())
+            using (new PXConnectionScope())
+            {
+                var destinations = PXSelectJoin<UsrPMCostReassignmentDestination, 
+                                        InnerJoin<PMTask, On<PMTask.taskID, Equal<UsrPMCostReassignmentDestination.taskID>>>, 
+                                            Where<PMTask.status, NotEqual<ProjectTaskStatus.completed>,
+                                            And<UsrPMCostReassignmentDestination.pMReassignmentID, Equal<Required<UsrPMCostReassignmentDestination.pMReassignmentID>>>>>.Select(this, row.PMReassignmentID);
+
+                foreach (UsrPMCostReassignmentDestination dest in destinations)
                 {
-                    var destinations = PXSelectJoin<UsrPMCostReassignmentDestination, 
-                                          InnerJoin<PMTask, On<PMTask.taskID, Equal<UsrPMCostReassignmentDestination.taskID>>>, 
-                                              Where<PMTask.status, NotEqual<ProjectTaskStatus.completed>,
-                                                And<UsrPMCostReassignmentDestination.pMReassignmentID, Equal<Required<UsrPMCostReassignmentDestination.pMReassignmentID>>>>>.Select(this, row.PMReassignmentID);
-
-                    foreach (UsrPMCostReassignmentDestination dest in destinations)
-                    {
-                        row.ReassignmentValue1Total += dest.ReassignmentValue1;
-                        row.ReassignmentValue2Total += dest.ReassignmentValue2;
-                    }
+                    row.ReassignmentValue1Total += dest.ReassignmentValue1;
+                    row.ReassignmentValue2Total += dest.ReassignmentValue2;
                 }
-            }
-        }
-
-        private void CalcutaleReassignmentValueTotalsOnUpdated(int? taskID, decimal? reassignmentValue1, int? reassignmentValue2, decimal? reassignmentValue1Old, int? reassignmentValue2Old)
-        {
-            PMTask task = PMTaskSelect.Search<PMTask.taskID>(taskID);
-            var parentRow = PMCostReassignment.Current;
-            if (parentRow != null && task != null && task.Status != ProjectTaskStatus.Completed)
-            {
-                parentRow.ReassignmentValue1Total = parentRow.ReassignmentValue1Total + reassignmentValue1.GetValueOrDefault() - reassignmentValue1Old.GetValueOrDefault();
-                parentRow.ReassignmentValue2Total = parentRow.ReassignmentValue2Total + reassignmentValue2.GetValueOrDefault() - reassignmentValue2Old.GetValueOrDefault();
-            }
-        }
+            }           
+        }        
 
         private string GetPMSetupUsrReassignmentNumberingID()
         {
@@ -521,25 +502,22 @@ namespace ProjectCostReallocation
 
             PMTask taskRow = PMTaskSelect.Search<PMTask.taskID>(taskID);
 
-                // Get source or destination tasks. If found - throw exception. .ToArray needed for avoid multiply enumeration of IEnumerable
-                var sources = sourceReassignments.Select(taskID, pmReassignmentID)
-                                                 .Cast<UsrPMCostReassignmentSource>()
-                                                 .Select(i => i.PMReassignmentID)
-                                                 .ToArray();
+            var listIDs = new List<string>();
 
-                var dests = destReassignments.Select(taskID, pmReassignmentID)
-                                             .Cast<UsrPMCostReassignmentDestination>()
-                                             .Select(i => i.PMReassignmentID)
-                                             .ToArray();
+            foreach (UsrPMCostReassignmentSource sourceReassignment in sourceReassignments.Select(taskID, pmReassignmentID))
+            {
+                listIDs.Add(sourceReassignment.PMReassignmentID);
+            }
 
-                if (sources.Any() || dests.Any())
-                {
-                    var listIDs = new List<string>();
-                    listIDs.AddRange(sources);
-                    listIDs.AddRange(dests);
-                    throw new PXSetPropertyException(string.Format(PMCostReassignmentMessages.PROJECT_TASK_ALREADY_USED, taskRow.TaskCD, string.Join(",", listIDs)), PXErrorLevel.Warning);
+            foreach (UsrPMCostReassignmentDestination destReassignment in destReassignments.Select(taskID, pmReassignmentID))
+            {
+                listIDs.Add(destReassignment.PMReassignmentID);
+            }
 
-                }
+            if (listIDs.Any())
+            {
+                throw new PXSetPropertyException(string.Format(PMCostReassignmentMessages.PROJECT_TASK_ALREADY_USED, taskRow.TaskCD, string.Join(",", listIDs)), PXErrorLevel.Warning);
+            }
         }
 
         private static void VerifyingReassignmentValue1MoreThanZero(PXFieldVerifyingEventArgs e)

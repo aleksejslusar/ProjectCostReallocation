@@ -53,7 +53,7 @@ namespace ProjectCostReallocation
 		{
 		}
 		protected int? _ProjectID;				
-        [PXDBInt(IsKey = true)]
+        [PXDBInt]
         [PXDefault]
         [PXUIField(DisplayName = "Project ID", Required = true)]
         [PXSelector(typeof(Search<PMProject.contractID, Where<PMProject.baseType, Equal<PMProject.ProjectBaseType>, And<PMProject.nonProject, Equal<False>, And<PMProject.isTemplate, NotEqual<True>>>>>), 
