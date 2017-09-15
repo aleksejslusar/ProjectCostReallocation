@@ -40,6 +40,9 @@ namespace ProjectCostReallocation
         public PXSelect<PMTask> PMTaskSelect;
 
         [PXCopyPasteHiddenView]
+        public PXSelectReadonly<PMTask, Where<PMTask.status, NotEqual<ProjectTaskStatus.completed>, And<PMTask.taskID, Equal<Required<PMTask.taskID>>>>> PMNotCompletedTaskSelect;
+
+        [PXCopyPasteHiddenView]
         public PXSelectJoin<PMTran,
                   InnerJoin<UsrPMCostReassignmentHistory, On<PMTran.tranID, Equal<UsrPMCostReassignmentHistory.tranID>>, 
                    LeftJoin<PMRegister, On<PMRegister.refNbr, Equal<PMTran.refNbr>, And<PMRegister.module, Equal<PMTran.tranType>>>>>,                    
@@ -246,7 +249,8 @@ namespace ProjectCostReallocation
 
         protected virtual void UsrPMCostReassignment_RowSelecting(PXCache sender, PXRowSelectingEventArgs e)
         {
-            CalcutaleReassignmentValueTotals();
+            var row = e.Row as UsrPMCostReassignment;
+            CalcutaleReassignmentValueTotals(row);
         }
 
         protected virtual void UsrPMCostReassignment_RowSelected(PXCache sender, PXRowSelectedEventArgs e)
@@ -346,17 +350,32 @@ namespace ProjectCostReallocation
 
         protected virtual void UsrPMCostReassignmentDestination_RowInserted(PXCache sender, PXRowInsertedEventArgs e)
         {
-            CalcutaleReassignmentValueTotals();            
+            var row = e.Row as UsrPMCostReassignmentDestination;
+            if (row != null)
+            {
+                AddTotals(row);
+            }
+            
         }
 
         protected virtual void UsrPMCostReassignmentDestination_RowDeleted(PXCache sender, PXRowDeletedEventArgs e)
         {
-            CalcutaleReassignmentValueTotals();            
+            var row = e.Row as UsrPMCostReassignmentDestination;
+            if (row != null)
+            {
+                SubstractTotals(row);
+            }
         }
 
         protected virtual void UsrPMCostReassignmentDestination_RowUpdated(PXCache sender, PXRowUpdatedEventArgs e)
         {
-            CalcutaleReassignmentValueTotals();
+            var row = e.Row as UsrPMCostReassignmentDestination;
+            var oldRow = e.OldRow as UsrPMCostReassignmentDestination;
+            if (row != null && oldRow != null && (row.ReassignmentValue1 != oldRow.ReassignmentValue1 || row.ReassignmentValue2 != oldRow.ReassignmentValue2))
+            {
+                SubstractTotals(oldRow);
+                AddTotals(row);
+            }
         }
 
         protected virtual void UsrPMCostReassignmentDestination_ProjectID_FieldUpdated(PXCache sender, PXFieldUpdatedEventArgs e)
@@ -409,8 +428,8 @@ namespace ProjectCostReallocation
         #region Public
         public void ProcessReassigment(PMCostReassigmentEntity entity)
         {
-            
             PMCostReassignment.Current = PMCostReassignment.Search<UsrPMCostReassignment.pMReassignmentID>(entity.PMReassignmentID);
+            CalcutaleReassignmentValueTotals(PMCostReassignment.Current);
             var registerEntry = CreateInstance<RegisterEntry>();
             var reassignmentEntry = this;
 
@@ -461,9 +480,8 @@ namespace ProjectCostReallocation
 
         #region Private
 
-        private void CalcutaleReassignmentValueTotals()
-        {           
-            var row = PMCostReassignment.Current;
+        private void CalcutaleReassignmentValueTotals(UsrPMCostReassignment row)
+        {                       
             if (row == null) return;
             row.ReassignmentValue1Total = 0;
             row.ReassignmentValue2Total = 0;
@@ -481,7 +499,29 @@ namespace ProjectCostReallocation
                     row.ReassignmentValue2Total += dest.ReassignmentValue2;
                 }
             }           
-        }        
+        }
+
+        private void AddTotals(UsrPMCostReassignmentDestination row)
+        {
+            PMTask task = PMNotCompletedTaskSelect.Select(row.TaskID);
+            var parentRow = PMCostReassignment.Current;
+            if (parentRow != null && task != null)
+            {
+                parentRow.ReassignmentValue1Total = parentRow.ReassignmentValue1Total + row.ReassignmentValue1.GetValueOrDefault();
+                parentRow.ReassignmentValue2Total = parentRow.ReassignmentValue2Total + row.ReassignmentValue2.GetValueOrDefault();
+            }
+        }
+        private void SubstractTotals(UsrPMCostReassignmentDestination row)
+        {
+            PMTask task = PMNotCompletedTaskSelect.Select(row.TaskID);
+            var parentRow = PMCostReassignment.Current;
+            if (parentRow != null && task != null)
+            {
+                parentRow.ReassignmentValue1Total = parentRow.ReassignmentValue1Total - row.ReassignmentValue1.GetValueOrDefault();
+                parentRow.ReassignmentValue2Total = parentRow.ReassignmentValue2Total - row.ReassignmentValue2.GetValueOrDefault();
+            }
+        }
+
 
         private string GetPMSetupUsrReassignmentNumberingID()
         {
