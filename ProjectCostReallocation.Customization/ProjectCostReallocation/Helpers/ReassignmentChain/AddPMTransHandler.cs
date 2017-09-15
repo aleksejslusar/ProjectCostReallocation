@@ -132,7 +132,7 @@ namespace ProjectCostReallocation
             {
                 var existsTransAmount = Math.Abs(ReassignmentEntry.ProcessedTransactions.Select(sourcePMTran.TranID, currentReassignment.PMReassignmentID, currentReassignment.RevID)
                                                                                    .Select(i => i.GetItem<PMTran>())
-                                                                                   .Where(i => i.Amount > 0)
+                                                                                   .Where(i => Math.Abs(i.Amount.GetValueOrDefault()) > 0)
                                                                                    .Sum(i => i.Amount.GetValueOrDefault()));
 
                 var sourceTransAmount = sourcePMTran.Amount.GetValueOrDefault();               
