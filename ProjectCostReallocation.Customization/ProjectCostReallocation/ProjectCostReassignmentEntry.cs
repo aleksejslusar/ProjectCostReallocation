@@ -70,7 +70,13 @@ namespace ProjectCostReallocation
                   InnerJoin<PMTran, On<PMTran.tranID, Equal<UsrPMCostReassignmentRunHistory.destinationTranID>>>>,
                       Where<UsrPMCostReassignmentSourceTran.sourceTranID, Equal<Required<UsrPMCostReassignmentSourceTran.sourceTranID>>,
                         And<UsrPMCostReassignmentRunHistory.pMReassignmentID, Equal<Required<UsrPMCostReassignmentRunHistory.pMReassignmentID>>,
-                        And<UsrPMCostReassignmentRunHistory.revID, Equal<Required<UsrPMCostReassignmentRunHistory.revID>>>>>> ProcessedTransactions;           
+                        And<UsrPMCostReassignmentRunHistory.revID, Equal<Required<UsrPMCostReassignmentRunHistory.revID>>>>>> ProcessedTransactions;
+
+        public PXSelectJoin<UsrPMCostReassignmentSourceTran,
+                  InnerJoin<UsrPMCostReassignmentRunHistory, On<UsrPMCostReassignmentRunHistory.sourceTranID, Equal<UsrPMCostReassignmentSourceTran.tranID>>,
+                  InnerJoin<PMTran, On<PMTran.tranID, Equal<UsrPMCostReassignmentRunHistory.destinationTranID>>>>,
+                      Where<UsrPMCostReassignmentSourceTran.sourceTranID, Equal<Required<UsrPMCostReassignmentSourceTran.sourceTranID>>,
+                        And<UsrPMCostReassignmentRunHistory.pMReassignmentID, Equal<Required<UsrPMCostReassignmentRunHistory.pMReassignmentID>>>>> AllProcessedTransactions;
         #endregion
 
         #region CacheAttached

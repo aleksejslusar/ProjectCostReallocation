@@ -130,10 +130,10 @@ namespace ProjectCostReallocation
             var currentReassignment = ReassignmentEntry.PMCostReassignment.Current;
             if (currentReassignment != null)
             {
-                var existsTransAmount = Math.Abs(ReassignmentEntry.ProcessedTransactions.Select(sourcePMTran.TranID, currentReassignment.PMReassignmentID, currentReassignment.RevID)
-                                                                                   .Select(i => i.GetItem<PMTran>())
-                                                                                   .Where(i => Math.Abs(i.Amount.GetValueOrDefault()) > 0)
-                                                                                   .Sum(i => i.Amount.GetValueOrDefault()));
+                var existsTransAmount = Math.Abs(ReassignmentEntry.AllProcessedTransactions.Select(sourcePMTran.TranID, currentReassignment.PMReassignmentID)
+                                                                                           .Select(i => i.GetItem<PMTran>())
+                                                                                           .Where(i => Math.Abs(i.Amount.GetValueOrDefault()) > 0)
+                                                                                           .Sum(i => i.Amount.GetValueOrDefault()));
 
                 var sourceTransAmount = sourcePMTran.Amount.GetValueOrDefault();               
                 var result = sourcePMTran.Amount > 0 ? decimal.Subtract(sourceTransAmount, existsTransAmount) : decimal.Add(sourceTransAmount, existsTransAmount);
