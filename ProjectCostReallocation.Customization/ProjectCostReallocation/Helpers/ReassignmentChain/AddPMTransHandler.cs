@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using PX.Data;
-using PX.Objects.CM;
+using PX.Objects.Common.Extensions;
 using PX.Objects.PM;
 
 namespace ProjectCostReallocation
@@ -11,8 +11,7 @@ namespace ProjectCostReallocation
     {
         #region .ctor
 
-        public AddPMTransHandler(ProjectCostReassignmentEntry reassignmentEntry, RegisterEntry registerEntry,
-            PMCostReassigmentEntity entity) : base(reassignmentEntry, registerEntry, entity)
+        public AddPMTransHandler(ProjectCostReassignmentEntry reassignmentEntry, RegisterEntry registerEntry, PMCostReassigmentEntity entity) : base(reassignmentEntry, registerEntry, entity)
         {
         }
 
@@ -35,38 +34,58 @@ namespace ProjectCostReallocation
             }
 
             //Validate if entityPair was reassigned earlier
-            var canReassignmenPMTrans = new List<PMTran>();
+            var canReassignmenPMTrans = new List<PMTran>();    
+            var allProcessedDestTaskIds = new HashSet<int?>();
             var currentReassignment = ReassignmentEntry.PMCostReassignment.Current;
+            decimal sourcePMTranBalance = 0;
             if (currentReassignment != null)
             {
-
+                var reassigmentDestinaitonTaskIds = ReassignmentEntry.PMCostReassignmentDestination.Select()
+                                                                                                   .Select(d => d.GetItem<PMTask>())
+                                                                                                   .Where(t => t.Status != ProjectTaskStatus.Completed)
+                                                                                                   .Select(t => t.TaskID);
                 foreach (var sourcePMTran in sourcePMTrans)
                 {
                     var processedDestTaskIds = ReassignmentEntry.ProcessedTransactions.Select(sourcePMTran.TranID, currentReassignment.PMReassignmentID, currentReassignment.RevID)
                                                                                       .Select(i => i.GetItem<UsrPMCostReassignmentRunHistory>().DestinationTaskID)
                                                                                       .ToList();
 
+                    sourcePMTranBalance += CalculateBalanceSourceAmount(sourcePMTran); 
+                    allProcessedDestTaskIds.AddRange(processedDestTaskIds);
                     if (!processedDestTaskIds.Any() || !processedDestTaskIds.Contains(Entity.DestinationTaskID))
                     {
                         canReassignmenPMTrans.Add(sourcePMTran);
                     }
                 }
+
+                if (!canReassignmenPMTrans.Any())
+                {
+                    string processingMessage;
+                    //Availability check not reassigned reassignments in reassignmet. If available - processing message text from first condition, otherwise - from second 
+                    if (reassigmentDestinaitonTaskIds.Except(allProcessedDestTaskIds).Any())
+                    {
+                        processingMessage = PMCostReassignmentMessages.REASSAIMENT_NOTHING_TO_REASSIGN_TRAN_REQASSIGNED_EARLIER;
+                    }
+                    else
+                    {
+                        //Check availability for balance more than zero in source transaction. Depending on the condition, the message changes
+                        processingMessage = Math.Abs(sourcePMTranBalance) > 0 ? string.Format(PMCostReassignmentMessages.REASSAIMENT_NOTHING_TO_REASSIGN_TRAN_REQASSIGNED_EARLIER_BUT_SOURCE_BALANCE_MORE_THAN_ZERO, currentReassignment.PMReassignmentID)
+                                                                              : PMCostReassignmentMessages.REASSAIMENT_NOTHING_TO_REASSIGN_TRAN_REQASSIGNED_EARLIER;
+                    }
+                    
+                    Entity.ProcessingWarning = true;
+                    Entity.ProcessingMessage = processingMessage;
+                    return;
+                }
             }
 
-            if (!canReassignmenPMTrans.Any())
-            {
-                Entity.ProcessingWarning = true;
-                Entity.ProcessingMessage =
-                    PMCostReassignmentMessages.REASSAIMENT_NOTHING_TO_REASSIGN_TRAN_REQASSIGNED_EARLIER;
-                return;
-            }
+            
 
             //Create transactions
             foreach (var sourcePMTran in canReassignmenPMTrans)
             {
                 var balansedSourceAmount = CalculateBalanceSourceAmount(sourcePMTran);
-                var reassignmentData = CalculateReassignmentAmount(sourcePMTran, balansedSourceAmount,
-                    reassigmentDestination);
+                var reassignmentData = CalculateReassignmentAmount(sourcePMTran, balansedSourceAmount, reassigmentDestination);
                 
                 //Valudations
                 if (!reassignmentData.IsValid)
@@ -76,10 +95,10 @@ namespace ProjectCostReallocation
                     return;
                 }
 
-               
-
                 //Write data
                 WriteTransactions(Entity, reassignmentData, sourcePMTran, reassignmentSource, reassigmentDestination);
+
+                //Write processed trans for show processing results
                 if (Math.Abs(balansedSourceAmount) <= Math.Abs(reassignmentData.Amount))
                 {
                     ReassignedSourcePMTrans.Add(sourcePMTran);
@@ -156,8 +175,8 @@ namespace ProjectCostReallocation
             if (currentReassignment != null)
             {
                 var processedDestTaskIds = ReassignmentEntry.ProcessedTransactions.Select(sourcePMTran.TranID, currentReassignment.PMReassignmentID, currentReassignment.RevID)
-                                                                                 .Select(i => i.GetItem<UsrPMCostReassignmentRunHistory>().DestinationTaskID)
-                                                                                 .ToList();
+                                                                                  .Select(i => i.GetItem<UsrPMCostReassignmentRunHistory>().DestinationTaskID)
+                                                                                  .ToList();
                 if (processedDestTaskIds.Any())
                 {
                     foreach (UsrPMCostReassignmentDestination result in ReassignmentEntry.PMCostReassignmentDestination.Select())
